@@ -2,7 +2,7 @@
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
-  <title>easy-unlocker</title>
+  <title>keyseal</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -65,7 +65,7 @@
 </svg>
 <div id="app">
   <nav id="nav">
-    <div class="brand"><span class="brand-glyph mono">eu</span><span class="brand-name mono">easy<span class="dim">/</span>unlocker</span></div>
+    <div class="brand"><span class="brand-glyph mono">ks</span><span class="brand-name mono">keyseal</span></div>
     <button data-page="approve" class="nav-btn"><svg class="ic" aria-hidden="true"><use href="#i-shield-check"/></svg><span>批准</span><span class="badge" id="pending-badge" hidden></span></button>
     <button data-page="vault" class="nav-btn"><svg class="ic" aria-hidden="true"><use href="#i-vault"/></svg><span>库</span><span class="chip warn-chip" id="lock-badge" hidden>已锁</span></button>
     <button data-page="request" class="nav-btn"><svg class="ic" aria-hidden="true"><use href="#i-key-round"/></svg><span>取密</span></button>
@@ -109,7 +109,7 @@
     <!-- 锁屏门禁：approver 配对后未解锁时整应用只有这一页 -->
     <section class="page center-page" id="page-lock">
       <div class="narrow">
-        <div class="lock-glyph mono" aria-hidden="true">eu</div>
+        <div class="lock-glyph mono" aria-hidden="true">ks</div>
         <h1 class="ta-c">解锁凭据库</h1>
         <p class="sub ta-c" id="lock-sub">解锁一次，直到锁屏、重启或手动锁上。</p>
         <div class="card">

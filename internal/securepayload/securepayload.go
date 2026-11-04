@@ -75,7 +75,7 @@ func Open(pairingToken, requestID, envelope string) ([]byte, error) {
 
 func deriveKey(pairingToken, requestID string) []byte {
 	mac := hmac.New(sha256.New, []byte(pairingToken))
-	mac.Write([]byte("easy-unlocker/v1/payload/"))
+	mac.Write([]byte("keyseal/v1/payload/"))
 	mac.Write([]byte(requestID))
 	return mac.Sum(nil)
 }

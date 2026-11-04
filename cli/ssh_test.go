@@ -96,7 +96,7 @@ func phoneSignsCert(t *testing.T, ca ssh.Signer, identity *SSHIdentity, requestI
 		Nonce:           make([]byte, 32),
 		Key:             publicKey,
 		CertType:        ssh.UserCert,
-		KeyId:           "easy-unlocker/" + requestID,
+		KeyId:           "keyseal/" + requestID,
 		ValidPrincipals: []string{principal},
 		ValidAfter:      uint64(now.Add(-30 * time.Second).Unix()),
 		ValidBefore:     uint64(now.Add(time.Duration(certTTL) * time.Second).Unix()),

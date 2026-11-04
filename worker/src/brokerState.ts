@@ -88,7 +88,7 @@ interface PairCodeRecord {
   role?: "requester" | "approver";
 }
 
-/** 租户级 vault 同步载体：blob 是 vault.eu1 密文原文，wrap 是可选的密码包裹。
+/** 租户级 vault 同步载体：blob 是 vault.ks1 密文原文，wrap 是可选的密码包裹。
  * broker 只保管不解读——解开它要恢复码或解锁密码，都在端上。 */
 interface VaultBlob {
   blob: string;
@@ -403,7 +403,7 @@ export class BrokerState extends DurableObject<Env> {
     return { ok: true };
   }
 
-  /** easyGet 断开后取消 pending，手机那边的待批准列表就跟着消失（对齐 Go 的 cancelPending）。 */
+  /** keyGet 断开后取消 pending，手机那边的待批准列表就跟着消失（对齐 Go 的 cancelPending）。 */
   private async cancel(body: any): Promise<{ ok: boolean }> {
     const id = String(body.id ?? "");
     const record = await this.ctx.storage.get<PendingRecord>(REQ_PREFIX + id);

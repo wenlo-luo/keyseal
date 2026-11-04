@@ -48,7 +48,7 @@ func TestSaveItemsRoundTripIsPrivate(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skip("Windows 下无 unix 权限位，私有性由 NTFS ACL 承担")
 	}
-	dir := filepath.Join(t.TempDir(), "easy-unlocker")
+	dir := filepath.Join(t.TempDir(), "keyseal")
 	path := filepath.Join(dir, "items.json")
 	saved := ItemList{
 		FetchedAt: "2026-09-15T01:02:03Z",
@@ -63,7 +63,7 @@ func TestSaveItemsRoundTripIsPrivate(t *testing.T) {
 	if mode := fileMode(t, path).Perm(); mode != 0o600 {
 		t.Fatalf("cache mode=%o, want 0600", mode)
 	}
-	if leftovers, _ := filepath.Glob(filepath.Join(dir, ".easy-unlocker-write-*")); len(leftovers) != 0 {
+	if leftovers, _ := filepath.Glob(filepath.Join(dir, ".keyseal-write-*")); len(leftovers) != 0 {
 		t.Fatalf("temporary files remain: %v", leftovers)
 	}
 
@@ -99,7 +99,7 @@ func TestItemsCachePathSitsNextToTheConfig(t *testing.T) {
 	if got, want := ItemsCachePath(configPath), filepath.Join(dir, "nested", "items.json"); got != want {
 		t.Fatalf("path=%q, want %q", got, want)
 	}
-	t.Setenv("EASY_UNLOCKER_CONFIG", configPath)
+	t.Setenv("KEYSEAL_CONFIG", configPath)
 	if got, want := ItemsCachePath(""), filepath.Join(dir, "nested", "items.json"); got != want {
 		t.Fatalf("env path=%q, want %q", got, want)
 	}

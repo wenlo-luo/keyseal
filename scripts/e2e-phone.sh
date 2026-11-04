@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# e2e-phone.sh —— easy-unlocker 真机验收的 adb UI 驱动函数库。
-# 用法：source scripts/e2e-phone.sh；临时解锁密码放在 $PW_FILE（默认 /tmp/eu-acceptance/pw）。
+# e2e-phone.sh —— keyseal 真机验收的 adb UI 驱动函数库。
+# 用法：source scripts/e2e-phone.sh；临时解锁密码放在 $PW_FILE（默认 /tmp/ks-acceptance/pw）。
 # 设计：一律按「文本 → bounds 中点」定位，不硬编码坐标；键盘弹出会移动布局（imePadding），
 # 所以所有输入前先收键盘再取坐标。
 
 set -u
-: "${PW_FILE:=/tmp/eu-acceptance/pw}"
-: "${E2E_PKG:=io.github.cyancity.easyunlocker}"
+: "${PW_FILE:=/tmp/ks-acceptance/pw}"
+: "${E2E_PKG:=io.github.keyseal.keyseal}"
 
 # --- 基础 ---
 

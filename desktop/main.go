@@ -29,7 +29,7 @@ func main() {
 	}
 
 	// GUI 子系统进程没有控制台，错误全部进日志文件。
-	logPath := filepath.Join(os.TempDir(), "easy-unlocker-desktop.log")
+	logPath := filepath.Join(os.TempDir(), "keyseal-desktop.log")
 	if f, err := os.OpenFile(logPath, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o600); err == nil {
 		defer f.Close()
 		log.SetOutput(f)
@@ -38,7 +38,7 @@ func main() {
 
 	app := NewApp()
 	err := wails.Run(&options.App{
-		Title:     "easy-unlocker",
+		Title:     "keyseal",
 		Width:     1120,
 		Height:    760,
 		MinWidth:  820,
@@ -57,7 +57,7 @@ func main() {
 		},
 		// 单实例：开始菜单/托盘连点只唤起已有实例，不出现第二个窗口和托盘图标。
 		SingleInstanceLock: &options.SingleInstanceLock{
-			UniqueId:               "cyancity-easy-unlocker-desktop",
+			UniqueId:               "keyseal-desktop",
 			OnSecondInstanceLaunch: func(options.SecondInstanceData) { app.showWindow() },
 		},
 		OnStartup: app.startup,

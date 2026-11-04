@@ -12,7 +12,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/broker"
+	"github.com/keyseal/keyseal/broker"
 )
 
 func main() {
@@ -29,21 +29,21 @@ func run() error {
 	flags := flag.NewFlagSet("broker", flag.ContinueOnError)
 	flags.SetOutput(os.Stderr)
 	showVersion := flags.Bool("version", false, "print build version and exit")
-	listen := flags.String("listen", envOr("EASY_UNLOCKER_LISTEN", "127.0.0.1:8787"), "HTTP listen address")
+	listen := flags.String("listen", envOr("KEYSEAL_LISTEN", "127.0.0.1:8787"), "HTTP listen address")
 	pairingToken := flags.String("pairing-token", "", "request pairing token")
 	adminToken := flags.String("admin-token", "", "admin pending-list token")
-	auditPath := flags.String("audit-log", envOr("EASY_UNLOCKER_AUDIT_LOG", "logs/broker.jsonl"), "audit JSONL path")
-	storeName := flags.String("store", envOr("EASY_UNLOCKER_STORE", "rbw"), "secret store: rbw or mock")
-	rbwBinary := flags.String("rbw", envOr("EASY_UNLOCKER_RBW", "rbw"), "rbw executable")
-	mockItem := flags.String("mock-item", os.Getenv("EASY_UNLOCKER_MOCK_ITEM"), "development-only mock item")
+	auditPath := flags.String("audit-log", envOr("KEYSEAL_AUDIT_LOG", "logs/broker.jsonl"), "audit JSONL path")
+	storeName := flags.String("store", envOr("KEYSEAL_STORE", "rbw"), "secret store: rbw or mock")
+	rbwBinary := flags.String("rbw", envOr("KEYSEAL_RBW", "rbw"), "rbw executable")
+	mockItem := flags.String("mock-item", os.Getenv("KEYSEAL_MOCK_ITEM"), "development-only mock item")
 	mockSecret := flags.String("mock-secret", "", "development-only mock value")
-	maxTTL := flags.Duration("max-ttl", envDuration("EASY_UNLOCKER_MAX_TTL", time.Hour), "maximum request lifetime")
-	tlsCert := flags.String("tls-cert", os.Getenv("EASY_UNLOCKER_TLS_CERT"), "TLS certificate path (optional)")
-	tlsKey := flags.String("tls-key", os.Getenv("EASY_UNLOCKER_TLS_KEY"), "TLS private key path (optional)")
-	deviceFile := flags.String("device-file", envOr("EASY_UNLOCKER_DEVICE_FILE", "data/devices.json"), "paired device token file")
-	vaultFile := flags.String("vault-file", envOr("EASY_UNLOCKER_VAULT_FILE", "data/vaults.json"), "synced vault ciphertext file")
-	fcmCreds := flags.String("fcm-credentials", os.Getenv("EASY_UNLOCKER_FCM_CREDENTIALS"), "Firebase service account JSON")
-	publicURL := flags.String("public-url", os.Getenv("EASY_UNLOCKER_PUBLIC_URL"), "本 Broker 的公网地址，写进推送载荷当网关标识（App 用它自动切换）")
+	maxTTL := flags.Duration("max-ttl", envDuration("KEYSEAL_MAX_TTL", time.Hour), "maximum request lifetime")
+	tlsCert := flags.String("tls-cert", os.Getenv("KEYSEAL_TLS_CERT"), "TLS certificate path (optional)")
+	tlsKey := flags.String("tls-key", os.Getenv("KEYSEAL_TLS_KEY"), "TLS private key path (optional)")
+	deviceFile := flags.String("device-file", envOr("KEYSEAL_DEVICE_FILE", "data/devices.json"), "paired device token file")
+	vaultFile := flags.String("vault-file", envOr("KEYSEAL_VAULT_FILE", "data/vaults.json"), "synced vault ciphertext file")
+	fcmCreds := flags.String("fcm-credentials", os.Getenv("KEYSEAL_FCM_CREDENTIALS"), "Firebase service account JSON")
+	publicURL := flags.String("public-url", os.Getenv("KEYSEAL_PUBLIC_URL"), "本 Broker 的公网地址，写进推送载荷当网关标识（App 用它自动切换）")
 	if err := flags.Parse(os.Args[1:]); err != nil {
 		return err
 	}
@@ -52,13 +52,13 @@ func run() error {
 		return nil
 	}
 	if *pairingToken == "" {
-		*pairingToken = os.Getenv("EASY_UNLOCKER_PAIRING_TOKEN")
+		*pairingToken = os.Getenv("KEYSEAL_PAIRING_TOKEN")
 	}
 	if *adminToken == "" {
-		*adminToken = os.Getenv("EASY_UNLOCKER_ADMIN_TOKEN")
+		*adminToken = os.Getenv("KEYSEAL_ADMIN_TOKEN")
 	}
 	if *mockSecret == "" {
-		*mockSecret = os.Getenv("EASY_UNLOCKER_MOCK_SECRET")
+		*mockSecret = os.Getenv("KEYSEAL_MOCK_SECRET")
 	}
 	if *maxTTL < time.Second {
 		return errors.New("max-ttl must be at least one second")
@@ -67,7 +67,7 @@ func run() error {
 		return errors.New("--tls-cert and --tls-key must be provided together")
 	}
 	if strings.TrimSpace(*pairingToken) == "" {
-		return errors.New("--pairing-token or EASY_UNLOCKER_PAIRING_TOKEN is required")
+		return errors.New("--pairing-token or KEYSEAL_PAIRING_TOKEN is required")
 	}
 
 	store, err := buildStore(*storeName, *rbwBinary, *mockItem, *mockSecret)
@@ -144,7 +144,7 @@ func buildStore(name, rbwBinary, mockItem, mockSecret string) (broker.SecretStor
 		return broker.RBWStore{Binary: rbwBinary}, nil
 	case "mock":
 		if mockItem == "" {
-			return nil, errors.New("--mock-item or EASY_UNLOCKER_MOCK_ITEM is required for mock store")
+			return nil, errors.New("--mock-item or KEYSEAL_MOCK_ITEM is required for mock store")
 		}
 		return broker.NewMapStore(map[string][]byte{mockItem: []byte(mockSecret)}), nil
 	default:

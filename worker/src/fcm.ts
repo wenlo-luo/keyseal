@@ -104,7 +104,7 @@ export async function sendFcm(
       body: JSON.stringify({
         message: {
           token: deviceToken,
-          notification: { title: "easy-unlocker", body: "有一条待批准的请求" },
+          notification: { title: "keyseal", body: "有一条待批准的请求" },
           data,
           android: {
             priority: "HIGH",

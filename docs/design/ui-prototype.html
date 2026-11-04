@@ -1,7 +1,7 @@
 <!doctype html>
 <!--
-  easy-unlocker · Android P1 — 可点通原型
-  设计规格在 easy-unlocker-android-design-v2.html；本文件只做一件事：把那条链路跑通。
+  keyseal · Android P1 — 可点通原型
+  设计规格在 keyseal-android-design-v2.html；本文件只做一件事：把那条链路跑通。
   令牌与 v2 完全一致（同一套 oklch + color-mix 派生），两套主题共用。
   机身外面那一条是原型控制，不属于产品界面。
   Vanilla JS + 事件委托；无框架、无外部请求。
@@ -10,7 +10,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>easy-unlocker · 可点通原型</title>
+<title>keyseal · 可点通原型</title>
 <style>
   :root {
     --bg: oklch(97.6% 0.003 265); --surface: oklch(100% 0 0); --raised: oklch(94.9% 0.007 269);
@@ -255,7 +255,7 @@
 <div class="shell">
   <div class="shell-hd">
     <div>
-      <div class="logo">easy-unlocker · 原型</div>
+      <div class="logo">keyseal · 原型</div>
       <div class="sub">设计真源 · 逻辑与 android/ 现有实现一致 · 数据全在内存<br />实现规格与代码落点见 android-ui-handoff.md</div>
     </div>
     <button class="tt" id="theme-toggle" aria-label="切换明暗主题">
@@ -275,7 +275,7 @@
           <p class="big">先把恢复码落到这台手机。</p>
           <div style="width:100%;">
             <div class="secret plain" style="text-align:center;font-size:16px;">EASY-4K7Q-M2XR-9WPD-3HTN-8ZVF</div>
-            <p class="note">已存到 Documents/easy-unlocker-recovery.txt</p>
+            <p class="note">已存到 Documents/keyseal-recovery.txt</p>
           </div>
           <p class="note" style="color:var(--warn-text);">换机时没有它，这份库打不开。它不上传、不联网。</p>
         </div></div>
@@ -440,7 +440,7 @@
       '<svg class="ic" style="width:26px;height:26px;color:var(--accent-text);" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>' +
       '<p class="big">先把恢复码落到这台手机。</p>' +
       '<div style="width:100%;"><div class="secret plain" style="text-align:center;font-size:16px;">' + esc(S.recovery) + '</div>' +
-      '<p class="note">已存到 Documents/easy-unlocker-recovery.txt</p></div>' +
+      '<p class="note">已存到 Documents/keyseal-recovery.txt</p></div>' +
       '<p class="note" style="color:var(--warn-text);">换机时没有它，这份库打不开。它不上传、不联网。</p>' +
       '</div></div>' +
       '<div class="actions"><button class="mbtn mbtn-primary" data-act="create">指纹确认并创建</button></div>' + gesture();
@@ -450,7 +450,7 @@
     return statusbar() + '<div class="lock">' +
       '<div style="text-align:center;"><p class="lock-clock">09:41</p><p class="lock-date">9月14日 星期一</p></div>' +
       '<button class="notif" data-act="open-notif">' +
-      '<div class="notif-hd"><svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg><span class="app">easy-unlocker</span><span style="margin-left:auto;">刚刚</span></div>' +
+      '<div class="notif-hd"><svg class="ic ic-sm" viewBox="0 0 24 24"><rect x="7" y="3" width="10" height="18" rx="2"/><path d="M11 18h2"/></svg><span class="app">keyseal</span><span style="margin-left:auto;">刚刚</span></div>' +
       '<div class="notif-title">有 ' + S.pending.length + ' 条凭据请求等待批准</div>' +
       '<div class="notif-body">打开 App，用指纹确认后放行。</div></button>' +
       '</div>' + gesture();
@@ -622,7 +622,7 @@
       toggle('toggle-sound', '放行时提示音', S.sound) +
       row('noop', '推送', 'FCM', 'style="border-bottom:0;"') +
       '</div><div class="grow"></div>' +
-      '<p class="note mono" style="font-size:11px;margin-bottom:22px;">恢复码 Documents/easy-unlocker-recovery.txt</p></div>' +
+      '<p class="note mono" style="font-size:11px;margin-bottom:22px;">恢复码 Documents/keyseal-recovery.txt</p></div>' +
       navHTML('settings') + gesture();
   };
 

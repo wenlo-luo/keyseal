@@ -1,35 +1,35 @@
-﻿# easy-unlocker 桌面客户端 Windows 安装脚本（PowerShell）
+﻿# keyseal 桌面客户端 Windows 安装脚本（PowerShell）
 #
 # 解决的问题：此前桌面端只能手工构建 exe 直接运行，开始菜单/搜索里找不到入口。
 # 本脚本把客户端装成「正规的 Windows 用户级应用」：
-#   exe   -> %LOCALAPPDATA%\Programs\easy-unlocker\easy-unlocker.exe
+#   exe   -> %LOCALAPPDATA%\Programs\keyseal\keyseal.exe
 #   开始菜单快捷方式（可被搜索命中）
-#   App Paths 注册（Win+R 输 easy-unlocker 可启动）
+#   App Paths 注册（Win+R 输 keyseal 可启动）
 #   「应用列表/设置-应用」里的卸载项（卸载走本脚本 -Uninstall）
 #   可选 -Startup：登录自启动（托盘常驻场景推荐）
 #
 # 用法：
 #   .\install-desktop.ps1                                  # 下载 latest release 安装
-#   .\install-desktop.ps1 -BinaryPath .\easy-unlocker.exe  # 安装本地构建
+#   .\install-desktop.ps1 -BinaryPath .\keyseal.exe  # 安装本地构建
 #   .\install-desktop.ps1 -Startup                         # 同时加登录自启动
 #   .\install-desktop.ps1 -Uninstall                       # 卸载（删 exe/快捷方式/注册项）
 
 param(
-    [string]$BinaryPath = $env:EASYUNLOCKER_BINARY,
+    [string]$BinaryPath = $env:KEYSEAL_BINARY,
     [switch]$Startup,
     [switch]$Uninstall,
     [switch]$NoStartMenu,
-    [string]$InstallDir = $(if ($env:EASYUNLOCKER_INSTALL_DIR) { $env:EASYUNLOCKER_INSTALL_DIR } else { "$env:LOCALAPPDATA\Programs\easy-unlocker" })
+    [string]$InstallDir = $(if ($env:KEYSEAL_INSTALL_DIR) { $env:KEYSEAL_INSTALL_DIR } else { "$env:LOCALAPPDATA\Programs\keyseal" })
 )
 
 $ErrorActionPreference = 'Stop'
-$appName = 'easy-unlocker'
-$exeName = 'easy-unlocker.exe'
+$appName = 'keyseal'
+$exeName = 'keyseal.exe'
 $target = Join-Path $InstallDir $exeName
-$startMenuLnk = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\easy-unlocker.lnk"
-$startupLnk = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\easy-unlocker.lnk"
+$startMenuLnk = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\keyseal.lnk"
+$startupLnk = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs\Startup\keyseal.lnk"
 $appPathsKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\App Paths\$exeName"
-$uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\easy-unlocker'
+$uninstallKey = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\keyseal'
 
 function Remove-Install {
     foreach ($p in @($target)) {
@@ -41,12 +41,12 @@ function Remove-Install {
     }
     Remove-Item -LiteralPath $startMenuLnk, $startupLnk -Force -ErrorAction SilentlyContinue
     Remove-Item $appPathsKey, $uninstallKey -Recurse -Force -ErrorAction SilentlyContinue
-    # 脚本副本与目录：目录里还有 easyGet.exe（CLI 安装器共用）时保留。
+    # 脚本副本与目录：目录里还有 keyGet.exe（CLI 安装器共用）时保留。
     Remove-Item -LiteralPath (Join-Path $InstallDir 'uninstall-desktop.ps1') -Force -ErrorAction SilentlyContinue
     if ($InstallDir -and (Test-Path -LiteralPath $InstallDir) -and -not (Get-ChildItem -LiteralPath $InstallDir -Force)) {
         Remove-Item -LiteralPath $InstallDir -Force
     }
-    Write-Host 'easy-unlocker 桌面端已卸载（配置与本地库缓存保留，在 %APPDATA%\easy-unlocker）。'
+    Write-Host 'keyseal 桌面端已卸载（配置与本地库缓存保留，在 %APPDATA%\keyseal）。'
 }
 
 if ($Uninstall) { Remove-Install; exit 0 }
@@ -60,14 +60,14 @@ try {
     if ($BinaryPath) {
         Copy-Item -LiteralPath $BinaryPath -Destination $tmp
     } else {
-        $url = "https://github.com/cyancity/easy-unlocker/releases/latest/download/easy-unlocker-desktop-windows-$arch.exe"
+        $url = "https://github.com/keyseal/keyseal/releases/latest/download/keyseal-desktop-windows-$arch.exe"
         Write-Host "下载 $url"
         Invoke-WebRequest -Uri $url -OutFile $tmp -UseBasicParsing
         # SHA256 与发布清单对照：防下载链路被替换。清单拉不到只警告（首版 release 可能还没有桌面产物）。
         $sums = $null
-        try { $sums = (Invoke-WebRequest -Uri 'https://github.com/cyancity/easy-unlocker/releases/latest/download/SHA256SUMS' -UseBasicParsing).Content } catch {}
+        try { $sums = (Invoke-WebRequest -Uri 'https://github.com/keyseal/keyseal/releases/latest/download/SHA256SUMS' -UseBasicParsing).Content } catch {}
         if ($sums) {
-            $want = (($sums -split "`n") | Where-Object { $_ -match "easy-unlocker-desktop-windows-$arch\.exe" } | Select-Object -First 1)
+            $want = (($sums -split "`n") | Where-Object { $_ -match "keyseal-desktop-windows-$arch\.exe" } | Select-Object -First 1)
             if ($want) {
                 $want = ($want -replace '^([0-9a-fA-F]{64}).*$', '$1').ToLower()
                 $got = (Get-FileHash -LiteralPath $tmp -Algorithm SHA256).Hash.ToLower()
@@ -85,13 +85,13 @@ try {
     if (Test-Path -LiteralPath $tmp) { Remove-Item -LiteralPath $tmp -Force }
 }
 
-# 开始菜单快捷方式：开始菜单搜索「easy-unlocker」即可命中。
+# 开始菜单快捷方式：开始菜单搜索「keyseal」即可命中。
 if (-not $NoStartMenu) {
     $shell = New-Object -ComObject WScript.Shell
     $lnk = $shell.CreateShortcut($startMenuLnk)
     $lnk.TargetPath = $target
     $lnk.WorkingDirectory = $InstallDir
-    $lnk.Description = 'easy-unlocker 桌面端'
+    $lnk.Description = 'keyseal 桌面端'
     $lnk.Save()
 }
 
@@ -104,9 +104,9 @@ $ver = 'dev'
 try { $ver = (& $target --version 2>$null | Select-Object -First 1) } catch {}
 if (-not $ver) { $ver = 'dev' }
 New-Item -Path $uninstallKey -Force | Out-Null
-Set-ItemProperty -Path $uninstallKey -Name 'DisplayName' -Value 'easy-unlocker'
+Set-ItemProperty -Path $uninstallKey -Name 'DisplayName' -Value 'keyseal'
 Set-ItemProperty -Path $uninstallKey -Name 'DisplayVersion' -Value "$ver"
-Set-ItemProperty -Path $uninstallKey -Name 'Publisher' -Value 'cyancity'
+Set-ItemProperty -Path $uninstallKey -Name 'Publisher' -Value 'keyseal'
 Set-ItemProperty -Path $uninstallKey -Name 'InstallLocation' -Value $InstallDir
 Set-ItemProperty -Path $uninstallKey -Name 'DisplayIcon' -Value $target
 Set-ItemProperty -Path $uninstallKey -Name 'NoModify' -Value 1
@@ -127,4 +127,4 @@ if ($Startup) {
 }
 
 Write-Host "已安装到 $target"
-Write-Host '开始菜单搜索 easy-unlocker 打开；Win+R 输 easy-unlocker 也可以。'
+Write-Host '开始菜单搜索 keyseal 打开；Win+R 输 keyseal 也可以。'

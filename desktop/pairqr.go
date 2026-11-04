@@ -14,8 +14,8 @@ import (
 
 	qrcode "github.com/skip2/go-qrcode"
 
-	"github.com/cyancity/easy-unlocker/cli"
-	"github.com/cyancity/easy-unlocker/internal/boxpayload"
+	"github.com/keyseal/keyseal/cli"
+	"github.com/keyseal/keyseal/internal/boxpayload"
 )
 
 // 扫码配对：桌面生成一次性 X25519 密钥对，QR 里只放 broker 地址、session、
@@ -29,7 +29,7 @@ type qrPairSession struct {
 	broker  string
 }
 
-// qrPayload 是 QR 里的 JSON；kind 固定 eu-pair，手机按它分流扫码内容。
+// qrPayload 是 QR 里的 JSON；kind 固定 ks-pair，手机按它分流扫码内容。
 type qrPayload struct {
 	V      int    `json:"v"`
 	Kind   string `json:"kind"`
@@ -57,7 +57,7 @@ func (a *App) StartQRPair(brokerURL string) (string, error) {
 	host, _ := os.Hostname()
 	payload := qrPayload{
 		V:      1,
-		Kind:   "eu-pair",
+		Kind:   "ks-pair",
 		Broker: broker,
 		S:      hex.EncodeToString(raw),
 		K:      key.PublicBase64(),

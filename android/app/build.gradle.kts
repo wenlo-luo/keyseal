@@ -4,10 +4,10 @@ plugins {
 }
 
 android {
-    namespace = "io.github.cyancity.easyunlocker"
+    namespace = "io.github.keyseal.keyseal"
     compileSdk = 35
     defaultConfig {
-        applicationId = "io.github.cyancity.easyunlocker"
+        applicationId = "io.github.keyseal.keyseal"
         minSdk = 28
         targetSdk = 35
         versionCode = 1

@@ -1,21 +1,21 @@
 {
   "$schema": "https://wails.io/schemas/config.v2.json",
-  "name": "easy-unlocker",
-  "outputfilename": "easy-unlocker",
+  "name": "keyseal",
+  "outputfilename": "keyseal",
   "frontend:install": "",
   "frontend:build": "",
   "frontend:dev:watcher": "",
   "frontend:dev:serverUrl": "",
   "frontend:dir": "frontend",
   "author": {
-    "name": "cyancity",
+    "name": "keyseal",
     "email": ""
   },
   "info": {
-    "companyName": "cyancity",
-    "productName": "easy-unlocker",
+    "companyName": "keyseal",
+    "productName": "keyseal",
     "productVersion": "0.1.0",
-    "copyright": "cyancity",
-    "comments": "easy-unlocker desktop approver/requester"
+    "copyright": "keyseal",
+    "comments": "keyseal desktop approver/requester"
   }
 }

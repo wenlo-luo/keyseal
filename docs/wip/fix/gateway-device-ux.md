@@ -20,7 +20,7 @@
 改完并已真机验收（见下）。分支已推送，等合并。
 
 - worker：`listDevices` 先按原始 `created` 排序再 map，时间字段一律 `toISOString()`；`handleRename` 白名单补 `name`。已部署，version `54250a7c`。
-- CLI：`runPair` 在无 `--name` 时用 `settings.Requester`（= `user@host`），并打印 Broker 认下的设备名。本机 `~/.local/bin/easyGet` 已换成该构建（旧的备份在 `/tmp/easyGet-backup`）。
+- CLI：`runPair` 在无 `--name` 时用 `settings.Requester`（= `user@host`），并打印 Broker 认下的设备名。本机 `~/.local/bin/keyGet` 已换成该构建（旧的备份在 `/tmp/keyGet-backup`）。
 - Android：
   - `data/DeviceTime.kt`：ISO / epoch 秒 / epoch 毫秒都能解析，兜底不再输出裸数字。
   - 设备按网关存（`UiState.devicesByPairing`），`devices` 是「当前网关」的计算属性；`onActiveChanged()` 挂在 `pair` / `switchPairing` / `markFromNotification` / `removePairing` 上。
@@ -58,7 +58,7 @@
 ## 顺带发现（待用户决定，本轮没动）
 
 - 网关的设备表里有两个非当前 approver（不是当前审批端）。按设计「同租户新 approver 上岗会踢掉旧的」，这两条属于历史残留；如果它们的令牌还在别的机器上，那台机器就能批准 arm 的请求。要不要清由用户定。
-- 本机换上新构建的 `easyGet` 后**打不通 arm**（旧二进制可以）：arm 上部署的 broker 早于当前 main，新 CLI 带的字段被它的 `DisallowUnknownFields` 拒了。CLI 现在指向 CF，不受影响；哪天要回 arm 得先把 arm 上的 broker 重新部署。
+- 本机换上新构建的 `keyGet` 后**打不通 arm**（旧二进制可以）：arm 上部署的 broker 早于当前 main，新 CLI 带的字段被它的 `DisallowUnknownFields` 拒了。CLI 现在指向 CF，不受影响；哪天要回 arm 得先把 arm 上的 broker 重新部署。
 
 ## 下一步
 
@@ -69,6 +69,6 @@
 ## 相关文件
 
 - `worker/src/brokerState.ts`、`worker/src/index.ts`
-- `cli/cmd/easyget/main.go`、`cli/cmd/easyget/main_test.go`
+- `cli/cmd/keyget/main.go`、`cli/cmd/keyget/main_test.go`
 - `android/.../data/DeviceTime.kt`、`AppViewModel.kt`、`ui/SettingsPanes.kt`、`ui/PendingPanes.kt`、`ui/AppScreen.kt`、`MainActivity.kt`
 - `broker/server_test.go`、`docs/PARITY.md`

@@ -16,9 +16,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/internal/boxpayload"
-	"github.com/cyancity/easy-unlocker/internal/protocol"
-	"github.com/cyancity/easy-unlocker/internal/securepayload"
+	"github.com/keyseal/keyseal/internal/boxpayload"
+	"github.com/keyseal/keyseal/internal/protocol"
+	"github.com/keyseal/keyseal/internal/securepayload"
 )
 
 const maxResponseBody = 8 << 20
@@ -27,7 +27,7 @@ type Settings struct {
 	BrokerURL    string
 	PairingToken string
 	Requester    string
-	// NoProxy 为 true 时绕过环境代理直连 broker（--no-proxy 或 EASYGET_NO_PROXY）。
+	// NoProxy 为 true 时绕过环境代理直连 broker（--no-proxy 或 KEYGET_NO_PROXY）。
 	NoProxy bool
 }
 
@@ -36,25 +36,25 @@ func LoadSettings(configPath string) (Settings, error) {
 		BrokerURL: "http://127.0.0.1:8787",
 	}
 	if configPath == "" {
-		configPath = os.Getenv("EASY_UNLOCKER_CONFIG")
+		configPath = os.Getenv("KEYSEAL_CONFIG")
 	}
 	if configPath == "" {
 		if home, err := os.UserHomeDir(); err == nil {
-			configPath = filepath.Join(home, ".config", "easy-unlocker", "config")
+			configPath = filepath.Join(home, ".config", "keyseal", "config")
 		}
 	}
 	if configPath != "" {
 		if err := loadConfigFile(configPath, &settings); err != nil && !errors.Is(err, os.ErrNotExist) {
-			return Settings{}, errors.New("cannot read easy-unlocker config")
+			return Settings{}, errors.New("cannot read keyseal config")
 		}
 	}
-	if value := os.Getenv("EASY_UNLOCKER_BROKER_URL"); value != "" {
+	if value := os.Getenv("KEYSEAL_BROKER_URL"); value != "" {
 		settings.BrokerURL = value
 	}
-	if value := os.Getenv("EASY_UNLOCKER_PAIRING_TOKEN"); value != "" {
+	if value := os.Getenv("KEYSEAL_PAIRING_TOKEN"); value != "" {
 		settings.PairingToken = value
 	}
-	if value := os.Getenv("EASY_UNLOCKER_REQUESTER"); value != "" {
+	if value := os.Getenv("KEYSEAL_REQUESTER"); value != "" {
 		settings.Requester = value
 	}
 	if settings.Requester == "" {
@@ -120,7 +120,7 @@ func newRequestKey() (string, error) {
 }
 
 // CheckBrokerURL 拒绝把设备令牌明文送出本机：非 loopback 只能 https。
-// 确需 http（例如内网调试）设 EASY_UNLOCKER_ALLOW_HTTP=1。
+// 确需 http（例如内网调试）设 KEYSEAL_ALLOW_HTTP=1。
 func CheckBrokerURL(raw string) error {
 	parsed, err := url.Parse(strings.TrimSpace(raw))
 	if err == nil && parsed.Scheme == "https" && parsed.Hostname() != "" {
@@ -134,20 +134,20 @@ func CheckBrokerURL(raw string) error {
 		if ip := net.ParseIP(host); ip != nil && ip.IsLoopback() {
 			return nil
 		}
-		if os.Getenv("EASY_UNLOCKER_ALLOW_HTTP") == "1" {
+		if os.Getenv("KEYSEAL_ALLOW_HTTP") == "1" {
 			return nil
 		}
 	}
-	return errors.New("Broker 地址必须是 https（本机 127.0.0.1/localhost 可用 http；确需明文设 EASY_UNLOCKER_ALLOW_HTTP=1）")
+	return errors.New("Broker 地址必须是 https（本机 127.0.0.1/localhost 可用 http；确需明文设 KEYSEAL_ALLOW_HTTP=1）")
 }
 
-// httpClient 决定走不走代理。NoProxy 或 EASYGET_NO_PROXY=1 时直连：自托管
+// httpClient 决定走不走代理。NoProxy 或 KEYGET_NO_PROXY=1 时直连：自托管
 // broker 的长轮询会被代理 CONNECT 隧道的空闲超时掐断，能直连就别绕。
 func (c Client) httpClient() *http.Client {
 	if c.HTTP != nil {
 		return c.HTTP
 	}
-	if c.NoProxy || os.Getenv("EASYGET_NO_PROXY") != "" {
+	if c.NoProxy || os.Getenv("KEYGET_NO_PROXY") != "" {
 		transport := http.DefaultTransport.(*http.Transport).Clone()
 		transport.Proxy = nil
 		return &http.Client{Transport: transport}
@@ -304,7 +304,7 @@ func WriteSecret(path string, value []byte) error {
 		return errors.New("写入路径不能为空")
 	}
 	dir := filepath.Dir(path)
-	file, err := os.CreateTemp(dir, ".easy-unlocker-write-*")
+	file, err := os.CreateTemp(dir, ".keyseal-write-*")
 	if err != nil {
 		return errors.New("无法创建临时文件")
 	}

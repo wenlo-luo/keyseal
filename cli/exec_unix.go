@@ -18,8 +18,8 @@ const (
 //
 // 子进程拿到两种取用形态（同一个 --exec 里都给，调用方按需取）：
 //
-//	$EASYGET_SECRET（可用 envName 改名）  值的本体，给从环境变量读密钥的程序
-//	$EASYGET_SECRET_FD                    /dev/fd/3，匿名 fd 的路径，给必须吃"文件路径"的工具
+//	$KEYGET_SECRET（可用 envName 改名）  值的本体，给从环境变量读密钥的程序
+//	$KEYGET_SECRET_FD                    /dev/fd/3，匿名 fd 的路径，给必须吃"文件路径"的工具
 //
 // 匿名 fd 的做法：写临时文件 → 立刻 os.Remove 抹掉名字 → 经 cmd.ExtraFiles 传给子进程。
 // 文件系统里搜不到它，子进程退出后即不可访问。
@@ -68,7 +68,7 @@ func RunWithSecret(command string, secret []byte, item string, envName string) (
 
 // anonymousSecretFile 把值写成"没有名字"的临时文件：写完立刻 unlink，只留 fd。
 func anonymousSecretFile(secret []byte) (*os.File, error) {
-	file, err := os.CreateTemp(os.TempDir(), ".easyget-*")
+	file, err := os.CreateTemp(os.TempDir(), ".keyget-*")
 	if err != nil {
 		return nil, errors.New("无法创建临时载体")
 	}

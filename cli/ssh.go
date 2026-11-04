@@ -60,7 +60,7 @@ func PrepareSSHIdentity(identityPath, identityTo, certPath string) (*SSHIdentity
 		ClearBytes(privateKey)
 		return nil, errors.New("无法初始化临时 SSH 身份")
 	}
-	block, err := ssh.MarshalPrivateKey(privateKey, "easy-unlocker ephemeral identity")
+	block, err := ssh.MarshalPrivateKey(privateKey, "keyseal ephemeral identity")
 	if err != nil {
 		ClearBytes(privateKey)
 		return nil, errors.New("无法编码临时 SSH 身份")
@@ -191,7 +191,7 @@ func WritePublicFile(path string, value []byte) error {
 	if err := os.MkdirAll(dir, 0o700); err != nil {
 		return errors.New("无法创建证书目录")
 	}
-	file, err := os.CreateTemp(dir, ".easy-unlocker-cert-*")
+	file, err := os.CreateTemp(dir, ".keyseal-cert-*")
 	if err != nil {
 		return errors.New("无法创建证书临时文件")
 	}

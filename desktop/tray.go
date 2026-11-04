@@ -18,11 +18,11 @@ import (
 // getlantern/systray 在 Windows 上跑 goroutine 即可（darwin 走独立文件禁用）。
 func (a *App) runTray() {
 	systray.Run(func() {
-		systray.SetTooltip("easy-unlocker")
+		systray.SetTooltip("keyseal")
 		systray.SetIcon(trayIcon())
 		mOpen := systray.AddMenuItem("打开", "显示主窗口")
 		systray.AddSeparator()
-		mQuit := systray.AddMenuItem("退出", "退出 easy-unlocker")
+		mQuit := systray.AddMenuItem("退出", "退出 keyseal")
 		go func() {
 			for range mOpen.ClickedCh {
 				a.showWindow()

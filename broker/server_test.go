@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/internal/boxpayload"
-	"github.com/cyancity/easy-unlocker/internal/protocol"
-	"github.com/cyancity/easy-unlocker/internal/securepayload"
+	"github.com/keyseal/keyseal/internal/boxpayload"
+	"github.com/keyseal/keyseal/internal/protocol"
+	"github.com/keyseal/keyseal/internal/securepayload"
 )
 
 type testAudit struct {

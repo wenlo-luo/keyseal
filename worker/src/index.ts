@@ -137,7 +137,7 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
   let deviceName = "";
   let tenant = "default";
   // 配对后的设备令牌与全局 pairing token 都能发起请求：配对的目的就是让新机器能取凭据。
-  if (!bearer(auth, env.EASY_UNLOCKER_PAIRING_TOKEN)) {
+  if (!bearer(auth, env.KEYSEAL_PAIRING_TOKEN)) {
     if (deviceToken === "") {
       return json(401, { status: "unauthorized", message: "authorization required" });
     }
@@ -185,8 +185,8 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
     requestKey: str(body.request_key).trim(),
     receivedAt,
     expiresAt: receivedAt + ttl * 1000,
-    approveSig: await decisionSignature(env.EASY_UNLOCKER_DECISION_KEY, id, "approve"),
-    denySig: await decisionSignature(env.EASY_UNLOCKER_DECISION_KEY, id, "deny"),
+    approveSig: await decisionSignature(env.KEYSEAL_DECISION_KEY, id, "approve"),
+    denySig: await decisionSignature(env.KEYSEAL_DECISION_KEY, id, "deny"),
     state: "waiting" as const,
   };
 
@@ -203,7 +203,7 @@ async function handleRequest(request: Request, env: Env, ctx: ExecutionContext):
     console.log("push targets:", pushTokens.length);
     try {
       for (const pushToken of pushTokens) {
-        await sendFcm(env.EASY_UNLOCKER_FCM_CREDENTIALS, pushToken, effectiveId, new URL(request.url).origin);
+        await sendFcm(env.KEYSEAL_FCM_CREDENTIALS, pushToken, effectiveId, new URL(request.url).origin);
       }
     } catch (error) {
       // 对齐 Go：通知发不出去就当场失败，不让人白等
@@ -267,7 +267,7 @@ async function handleDecision(request: Request, env: Env, id: string): Promise<R
 async function handleForgetDevice(request: Request, env: Env): Promise<Response> {
   if (request.method !== "POST") return methodNotAllowed();
   const header = request.headers.get("x-admin-token");
-  if (!env.EASY_UNLOCKER_ADMIN_TOKEN || !bearer(header, env.EASY_UNLOCKER_ADMIN_TOKEN)) {
+  if (!env.KEYSEAL_ADMIN_TOKEN || !bearer(header, env.KEYSEAL_ADMIN_TOKEN)) {
     return json(401, { status: "unauthorized", message: "admin authorization required" });
   }
   const body = await readJson(request, ["device_token", "all"]);
@@ -285,7 +285,7 @@ async function handlePending(request: Request, env: Env, admin: boolean): Promis
   if (request.method !== "GET") return methodNotAllowed();
   if (admin) {
     const header = request.headers.get("x-admin-token");
-    if (!env.EASY_UNLOCKER_ADMIN_TOKEN || !bearer(header, env.EASY_UNLOCKER_ADMIN_TOKEN)) {
+    if (!env.KEYSEAL_ADMIN_TOKEN || !bearer(header, env.KEYSEAL_ADMIN_TOKEN)) {
       return json(401, { status: "unauthorized", message: "admin authorization required" });
     }
   } else {
@@ -304,7 +304,7 @@ async function handlePending(request: Request, env: Env, admin: boolean): Promis
 
 async function handlePair(request: Request, env: Env): Promise<Response> {
   if (request.method !== "POST") return methodNotAllowed();
-  if (!bearer(request.headers.get("authorization"), env.EASY_UNLOCKER_PAIRING_TOKEN)) {
+  if (!bearer(request.headers.get("authorization"), env.KEYSEAL_PAIRING_TOKEN)) {
     return json(401, { status: "unauthorized", message: "authorization required" });
   }
   const body = await readJson(request, ["name", "vault_id"]).catch(() => null);

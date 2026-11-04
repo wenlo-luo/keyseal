@@ -1,22 +1,22 @@
-# easy-unlocker — 品牌标志
+# keyseal — 品牌标志
 
 ## 体积纪律
 
 这个目录只放 **SVG 源 + 确实需要的位图**。不要提交打包 zip、同一图形的多尺寸位图副本、以及已有 SVG 对应的大 PNG——它们撑大的是 `.git` 历史，事后删掉当前文件也回收不了。
 
-需要多尺寸位图时从 SVG 现场渲染（已删的 `easy-unlocker-icon-{48,192,512,1024}.png` 就是这么来的），不要入库。
+需要多尺寸位图时从 SVG 现场渲染（已删的 `keyseal-icon-{48,192,512,1024}.png` 就是这么来的），不要入库。
 
 ## 文件
 
 | 文件 | 用途 |
 |---|---|
-| `easy-unlocker-icon.svg` / `-light.svg` | 方形图标源，深色 / 浅色。Android adaptive 前景与各密度 PNG 的渲染来源 |
-| `easy-unlocker-mark.svg` | 透明标志，锁梁内部与双眼为透明负形，深浅背景通用。README 用它 |
-| `easy-unlocker-logo.svg` / `-dark.svg` | 横版字标，浅底 / 深底 |
-| `easy-unlocker-logo.png` / `-dark.png` | 横版位图 1600 px，给不吃 SVG 的场合（OG / 社交预览） |
-| `easy-unlocker-mark-512.png` | 透明标志位图 512 px，需要 PNG 头像时用 |
-| `easy-unlocker-approved-dark.jpg` | 定稿设计原图（图像模型输出，1254 px）。SVG 是按它做的几何重建，原图保留作视觉真源 |
-| `easy-unlocker-preview.jpg` | 深 / 浅 / 圆形裁切三态预览，1290×540 |
+| `keyseal-icon.svg` / `-light.svg` | 方形图标源，深色 / 浅色。Android adaptive 前景与各密度 PNG 的渲染来源 |
+| `keyseal-mark.svg` | 透明标志，锁梁内部与双眼为透明负形，深浅背景通用。README 用它 |
+| `keyseal-logo.svg` / `-dark.svg` | 横版字标，浅底 / 深底 |
+| `keyseal-logo.png` / `-dark.png` | 横版位图 1600 px，给不吃 SVG 的场合（OG / 社交预览） |
+| `keyseal-mark-512.png` | 透明标志位图 512 px，需要 PNG 头像时用 |
+| `keyseal-approved-dark.jpg` | 定稿设计原图（图像模型输出，1254 px）。SVG 是按它做的几何重建，原图保留作视觉真源 |
+| `keyseal-preview.jpg` | 深 / 浅 / 圆形裁切三态预览，1290×540 |
 
 配色：深色版 `#22d3ee` / `#0f172a`；浅色版 `#0891b2` / `#f1f5f9`。
 

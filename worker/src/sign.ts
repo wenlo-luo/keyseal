@@ -33,7 +33,7 @@ async function hmacHex(key: string, message: string): Promise<string> {
 }
 
 // 对齐 Go 的 broker/server.go decisionSignature：
-//   HMAC-SHA256(key, "easy-unlocker/v1/decision/" + id + "/" + decision)
+//   HMAC-SHA256(key, "keyseal/v1/decision/" + id + "/" + decision)
 export function decisionSignature(key: string, id: string, decision: string): Promise<string> {
-  return hmacHex(key, `easy-unlocker/v1/decision/${id}/${decision}`);
+  return hmacHex(key, `keyseal/v1/decision/${id}/${decision}`);
 }

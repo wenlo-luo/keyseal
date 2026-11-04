@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate EasyUnlocker.xcodeproj/project.pbxproj deterministically.
+"""Generate KeySeal.xcodeproj/project.pbxproj deterministically.
 
 Single iOS app target, file-system-synchronized source tree is NOT used
 (objectVersion 56, explicit file lists) so the project builds with a plain
-`xcodebuild -project ios/EasyUnlocker.xcodeproj -scheme EasyUnlocker
+`xcodebuild -project ios/KeySeal.xcodeproj -scheme KeySeal
  -destination 'generic/platform=iOS Simulator' build`.
 Re-run after adding/removing source files.
 """
@@ -11,12 +11,12 @@ import os
 import uuid
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
-APP_DIR = os.path.join(ROOT, "EasyUnlocker")
-TEST_DIR = os.path.join(ROOT, "EasyUnlockerUITests")
+APP_DIR = os.path.join(ROOT, "KeySeal")
+TEST_DIR = os.path.join(ROOT, "KeySealUITests")
 
 NS = "F00DC0DE"
 def uid(name: str) -> str:
-    return uuid.uuid5(uuid.NAMESPACE_DNS, "easy-unlocker-ios/" + name).hex[:24].upper()
+    return uuid.uuid5(uuid.NAMESPACE_DNS, "keyseal-ios/" + name).hex[:24].upper()
 
 # ---- collect sources -------------------------------------------------------
 ASSET_CATALOGS = []  # rel paths of *.xcassets (whole-catalog file refs)
@@ -25,7 +25,7 @@ def collect():
     groups = {}  # rel dir -> {files: [...], subdirs: set()}
     for dirpath, dirnames, filenames in os.walk(APP_DIR):
         dirnames.sort()
-        rel = os.path.relpath(dirpath, APP_DIR)
+        rel = os.path.relpath(dirpath, APP_DIR).replace(os.sep, "/")
         rel = "" if rel == "." else rel
         # .xcassets 是一整个资源目录，不下钻展开
         for d in list(dirnames):
@@ -70,7 +70,7 @@ def file_type(name):
     if name.endswith(".entitlements"): return "text.plist.entitlements"
     return "text"
 
-# group tree under EasyUnlocker/
+# group tree under KeySeal/
 def group_id(path): return uid("group/" + (path or "."))
 
 # collect every group path (incl. intermediates)
@@ -98,9 +98,9 @@ for g in all_groups:
     kids = "".join(
         f"\n\t\t\t\t{cid} /* {name} */," for cid, name, _ in children)
     obj(group_id(g),
-        f"{group_id(g)} /* {os.path.basename(g) if g else 'EasyUnlocker'} */ = {{\n"
+        f"{group_id(g)} /* {os.path.basename(g) if g else 'KeySeal'} */ = {{\n"
         f"\t\t\tisa = PBXGroup;\n\t\t\tchildren = ({kids}\n\t\t\t);\n"
-        f"\t\t\tpath = {os.path.basename(g) if g else 'EasyUnlocker'};\n"
+        f"\t\t\tpath = {os.path.basename(g) if g else 'KeySeal'};\n"
         f"\t\t\tsourceTree = \"<group>\";\n\t\t}};")
 
 # file references + build files
@@ -132,21 +132,21 @@ for cat in ASSET_CATALOGS:
 PRODUCT_REF = uid("product/app")
 TEST_PRODUCT_REF = uid("product/uitests")
 obj(PRODUCT_REF,
-    f"{PRODUCT_REF} /* EasyUnlocker.app */ = {{isa = PBXFileReference; "
+    f"{PRODUCT_REF} /* KeySeal.app */ = {{isa = PBXFileReference; "
     "explicitFileType = wrapper.application; includeInIndex = 0; "
-    "path = EasyUnlocker.app; sourceTree = BUILT_PRODUCTS_DIR; };")
+    "path = KeySeal.app; sourceTree = BUILT_PRODUCTS_DIR; };")
 obj(TEST_PRODUCT_REF,
-    f"{TEST_PRODUCT_REF} /* EasyUnlockerUITests.xctest */ = {{isa = PBXFileReference; "
+    f"{TEST_PRODUCT_REF} /* KeySealUITests.xctest */ = {{isa = PBXFileReference; "
     "explicitFileType = wrapper.cfbundle; includeInIndex = 0; "
-    "path = EasyUnlockerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };")
+    "path = KeySealUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };")
 
 # test group + file refs
 TEST_GROUP = uid("group/uitests")
 test_kids = "".join(f"\n\t\t\t\t{file_ref_id('uitest/' + f)} /* {f} */,"
                     for f in test_srcs)
 obj(TEST_GROUP,
-    f"{TEST_GROUP} /* EasyUnlockerUITests */ = {{isa = PBXGroup; children = ({test_kids}\n"
-    f"\t\t\t);\n\t\t\tpath = EasyUnlockerUITests;\n\t\t\tsourceTree = \"<group>\";\n\t\t}};")
+    f"{TEST_GROUP} /* KeySealUITests */ = {{isa = PBXGroup; children = ({test_kids}\n"
+    f"\t\t\t);\n\t\t\tpath = KeySealUITests;\n\t\t\tsourceTree = \"<group>\";\n\t\t}};")
 for f in test_srcs:
     obj(file_ref_id("uitest/" + f),
         f"{file_ref_id('uitest/' + f)} /* {f} */ = {{isa = PBXFileReference; "
@@ -160,13 +160,13 @@ MAIN_GROUP = uid("group/main")
 PRODUCTS_GROUP = uid("group/products")
 obj(PRODUCTS_GROUP,
     f"{PRODUCTS_GROUP} /* Products */ = {{isa = PBXGroup; children = (\n"
-    f"\t\t\t\t{PRODUCT_REF} /* EasyUnlocker.app */,\n"
-    f"\t\t\t\t{TEST_PRODUCT_REF} /* EasyUnlockerUITests.xctest */,\n\t\t\t);\n"
+    f"\t\t\t\t{PRODUCT_REF} /* KeySeal.app */,\n"
+    f"\t\t\t\t{TEST_PRODUCT_REF} /* KeySealUITests.xctest */,\n\t\t\t);\n"
     f"\t\t\tname = Products;\n\t\t\tsourceTree = \"<group>\";\n\t\t}};")
 obj(MAIN_GROUP,
     f"{MAIN_GROUP} = {{isa = PBXGroup; children = (\n"
-    f"\t\t\t\t{group_id('')} /* EasyUnlocker */,\n"
-    f"\t\t\t\t{TEST_GROUP} /* EasyUnlockerUITests */,\n"
+    f"\t\t\t\t{group_id('')} /* KeySeal */,\n"
+    f"\t\t\t\t{TEST_GROUP} /* KeySealUITests */,\n"
     f"\t\t\t\t{PRODUCTS_GROUP} /* Products */,\n\t\t\t);\n"
     f"\t\t\tsourceTree = \"<group>\";\n\t\t}};")
 
@@ -217,14 +217,14 @@ def cfg(name, target: bool):
     if target:
         settings = f"""
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_ENTITLEMENTS = EasyUnlocker/EasyUnlocker.entitlements;
+				CODE_SIGN_ENTITLEMENTS = KeySeal/KeySeal.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = NO;
-				INFOPLIST_FILE = EasyUnlocker/Info.plist;
+				INFOPLIST_FILE = KeySeal/Info.plist;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -233,11 +233,11 @@ def cfg(name, target: bool):
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = io.github.cyancity.easyunlocker;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.keyseal.keyseal;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = EasyUnlocker/EasyUnlocker-Bridging-Header.h;
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/EasyUnlocker/Vendor/Argon2";
+				SWIFT_OBJC_BRIDGING_HEADER = KeySeal/KeySeal-Bridging-Header.h;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/KeySeal/Vendor/Argon2";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 """
@@ -327,12 +327,12 @@ def test_cfg(name):
         f"\t\t\t\t\t\"@loader_path/Frameworks\",\n"
         f"\t\t\t\t);\n"
         f"\t\t\t\tMARKETING_VERSION = 1.0;\n"
-        f"\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = io.github.cyancity.easyunlocker.UITests;\n"
+        f"\t\t\t\tPRODUCT_BUNDLE_IDENTIFIER = io.github.keyseal.keyseal.UITests;\n"
         f"\t\t\t\tPRODUCT_NAME = \"$(TARGET_NAME)\";\n"
         f"\t\t\t\tSWIFT_EMIT_LOC_STRINGS = NO;\n"
         f"\t\t\t\tSWIFT_VERSION = 5.0;\n"
         f"\t\t\t\tTARGETED_DEVICE_FAMILY = 1;\n"
-        f"\t\t\t\tTEST_TARGET_NAME = EasyUnlocker;\n"
+        f"\t\t\t\tTEST_TARGET_NAME = KeySeal;\n"
         f"\t\t\t}};\n\t\t\tname = {name};\n\t\t}};")
     return cid
 
@@ -348,19 +348,19 @@ dbg_t, rel_t = cfg("Debug", True), cfg("Release", True)
 dbg_u, rel_u = test_cfg("Debug"), test_cfg("Release")
 
 obj(PROJ_CFG_LIST,
-    f"{PROJ_CFG_LIST} /* Build configuration list for PBXProject \"EasyUnlocker\" */ = {{\n"
+    f"{PROJ_CFG_LIST} /* Build configuration list for PBXProject \"KeySeal\" */ = {{\n"
     f"\t\t\tisa = XCConfigurationList;\n\t\t\tbuildConfigurations = (\n"
     f"\t\t\t\t{dbg_p} /* Debug */,\n\t\t\t\t{rel_p} /* Release */,\n\t\t\t);\n"
     f"\t\t\tdefaultConfigurationIsVisible = 0;\n"
     f"\t\t\tdefaultConfigurationName = Release;\n\t\t}};")
 obj(TGT_CFG_LIST,
-    f"{TGT_CFG_LIST} /* Build configuration list for PBXNativeTarget \"EasyUnlocker\" */ = {{\n"
+    f"{TGT_CFG_LIST} /* Build configuration list for PBXNativeTarget \"KeySeal\" */ = {{\n"
     f"\t\t\tisa = XCConfigurationList;\n\t\t\tbuildConfigurations = (\n"
     f"\t\t\t\t{dbg_t} /* Debug */,\n\t\t\t\t{rel_t} /* Release */,\n\t\t\t);\n"
     f"\t\t\tdefaultConfigurationIsVisible = 0;\n"
     f"\t\t\tdefaultConfigurationName = Release;\n\t\t}};")
 obj(TEST_CFG_LIST,
-    f"{TEST_CFG_LIST} /* Build configuration list for PBXNativeTarget \"EasyUnlockerUITests\" */ = {{\n"
+    f"{TEST_CFG_LIST} /* Build configuration list for PBXNativeTarget \"KeySealUITests\" */ = {{\n"
     f"\t\t\tisa = XCConfigurationList;\n\t\t\tbuildConfigurations = (\n"
     f"\t\t\t\t{dbg_u} /* Debug */,\n\t\t\t\t{rel_u} /* Release */,\n\t\t\t);\n"
     f"\t\t\tdefaultConfigurationIsVisible = 0;\n"
@@ -374,15 +374,15 @@ obj(TEST_PROXY_ID,
     f"\t\t\tcontainerPortal = {PROJECT_ID} /* Project object */;\n"
     f"\t\t\tproxyType = 1;\n"
     f"\t\t\tremoteGlobalIDString = {TARGET_ID};\n"
-    f"\t\t\tremoteInfo = EasyUnlocker;\n\t\t}};")
+    f"\t\t\tremoteInfo = KeySeal;\n\t\t}};")
 obj(TEST_DEP_ID,
     f"{TEST_DEP_ID} /* PBXTargetDependency */ = {{isa = PBXTargetDependency;\n"
-    f"\t\t\ttarget = {TARGET_ID} /* EasyUnlocker */;\n"
+    f"\t\t\ttarget = {TARGET_ID} /* KeySeal */;\n"
     f"\t\t\ttargetProxy = {TEST_PROXY_ID} /* PBXContainerItemProxy */;\n\t\t}};")
 
 obj(TARGET_ID,
-    f"{TARGET_ID} /* EasyUnlocker */ = {{isa = PBXNativeTarget;\n"
-    f"\t\t\tbuildConfigurationList = {TGT_CFG_LIST} /* Build configuration list for PBXNativeTarget \"EasyUnlocker\" */;\n"
+    f"{TARGET_ID} /* KeySeal */ = {{isa = PBXNativeTarget;\n"
+    f"\t\t\tbuildConfigurationList = {TGT_CFG_LIST} /* Build configuration list for PBXNativeTarget \"KeySeal\" */;\n"
     f"\t\t\tbuildPhases = (\n"
     f"\t\t\t\t{SOURCES_PHASE} /* Sources */,\n"
     f"\t\t\t\t{FW_PHASE} /* Frameworks */,\n"
@@ -390,14 +390,14 @@ obj(TARGET_ID,
     f"\t\t\t);\n"
     f"\t\t\tbuildRules = (\n\t\t\t);\n"
     f"\t\t\tdependencies = (\n\t\t\t);\n"
-    f"\t\t\tname = EasyUnlocker;\n"
-    f"\t\t\tproductName = EasyUnlocker;\n"
-    f"\t\t\tproductReference = {PRODUCT_REF} /* EasyUnlocker.app */;\n"
+    f"\t\t\tname = KeySeal;\n"
+    f"\t\t\tproductName = KeySeal;\n"
+    f"\t\t\tproductReference = {PRODUCT_REF} /* KeySeal.app */;\n"
     f"\t\t\tproductType = \"com.apple.product-type.application\";\n\t\t}};")
 
 obj(TEST_TARGET_ID,
-    f"{TEST_TARGET_ID} /* EasyUnlockerUITests */ = {{isa = PBXNativeTarget;\n"
-    f"\t\t\tbuildConfigurationList = {TEST_CFG_LIST} /* Build configuration list for PBXNativeTarget \"EasyUnlockerUITests\" */;\n"
+    f"{TEST_TARGET_ID} /* KeySealUITests */ = {{isa = PBXNativeTarget;\n"
+    f"\t\t\tbuildConfigurationList = {TEST_CFG_LIST} /* Build configuration list for PBXNativeTarget \"KeySealUITests\" */;\n"
     f"\t\t\tbuildPhases = (\n"
     f"\t\t\t\t{TEST_SOURCES_PHASE} /* Sources */,\n"
     f"\t\t\t\t{TEST_FW_PHASE} /* Frameworks */,\n"
@@ -405,9 +405,9 @@ obj(TEST_TARGET_ID,
     f"\t\t\t);\n"
     f"\t\t\tbuildRules = (\n\t\t\t);\n"
     f"\t\t\tdependencies = (\n\t\t\t\t{TEST_DEP_ID} /* PBXTargetDependency */,\n\t\t\t);\n"
-    f"\t\t\tname = EasyUnlockerUITests;\n"
-    f"\t\t\tproductName = EasyUnlockerUITests;\n"
-    f"\t\t\tproductReference = {TEST_PRODUCT_REF} /* EasyUnlockerUITests.xctest */;\n"
+    f"\t\t\tname = KeySealUITests;\n"
+    f"\t\t\tproductName = KeySealUITests;\n"
+    f"\t\t\tproductReference = {TEST_PRODUCT_REF} /* KeySealUITests.xctest */;\n"
     f"\t\t\tproductType = \"com.apple.product-type.bundle.ui-testing\";\n\t\t}};")
 
 obj(PROJECT_ID,
@@ -426,7 +426,7 @@ obj(PROJECT_ID,
     f"\t\t\t\t\t}};\n"
     f"\t\t\t\t}};\n"
     f"\t\t\t}};\n"
-    f"\t\t\tbuildConfigurationList = {PROJ_CFG_LIST} /* Build configuration list for PBXProject \"EasyUnlocker\" */;\n"
+    f"\t\t\tbuildConfigurationList = {PROJ_CFG_LIST} /* Build configuration list for PBXProject \"KeySeal\" */;\n"
     f"\t\t\tcompatibilityVersion = \"Xcode 14.0\";\n"
     f"\t\t\tdevelopmentRegion = en;\n"
     f"\t\t\thasScannedForEncodings = 0;\n"
@@ -435,8 +435,8 @@ obj(PROJECT_ID,
     f"\t\t\tproductRefGroup = {PRODUCTS_GROUP} /* Products */;\n"
     f"\t\t\tprojectDirPath = \"\";\n"
     f"\t\t\tprojectRoot = \"\";\n"
-    f"\t\t\ttargets = (\n\t\t\t\t{TARGET_ID} /* EasyUnlocker */,\n"
-    f"\t\t\t\t{TEST_TARGET_ID} /* EasyUnlockerUITests */,\n\t\t\t);\n\t\t}};")
+    f"\t\t\ttargets = (\n\t\t\t\t{TARGET_ID} /* KeySeal */,\n"
+    f"\t\t\t\t{TEST_TARGET_ID} /* KeySealUITests */,\n\t\t\t);\n\t\t}};")
 
 # ---- assemble --------------------------------------------------------------
 emit("// !$*UTF8*$!")
@@ -475,7 +475,7 @@ emit("\t};")
 emit(f"\trootObject = {PROJECT_ID} /* Project object */;")
 emit("}")
 
-proj_dir = os.path.join(ROOT, "EasyUnlocker.xcodeproj")
+proj_dir = os.path.join(ROOT, "KeySeal.xcodeproj")
 os.makedirs(proj_dir, exist_ok=True)
 out = os.path.join(proj_dir, "project.pbxproj")
 with open(out, "w") as fh:
@@ -502,9 +502,9 @@ scheme = f"""<?xml version="1.0" encoding="UTF-8"?>
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "{TARGET_ID}"
-               BuildableName = "EasyUnlocker.app"
-               BlueprintName = "EasyUnlocker"
-               ReferencedContainer = "container:EasyUnlocker.xcodeproj">
+               BuildableName = "KeySeal.app"
+               BlueprintName = "KeySeal"
+               ReferencedContainer = "container:KeySeal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
          <BuildActionEntry
@@ -516,9 +516,9 @@ scheme = f"""<?xml version="1.0" encoding="UTF-8"?>
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "{TEST_TARGET_ID}"
-               BuildableName = "EasyUnlockerUITests.xctest"
-               BlueprintName = "EasyUnlockerUITests"
-               ReferencedContainer = "container:EasyUnlocker.xcodeproj">
+               BuildableName = "KeySealUITests.xctest"
+               BlueprintName = "KeySealUITests"
+               ReferencedContainer = "container:KeySeal.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -535,9 +535,9 @@ scheme = f"""<?xml version="1.0" encoding="UTF-8"?>
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "{TEST_TARGET_ID}"
-               BuildableName = "EasyUnlockerUITests.xctest"
-               BlueprintName = "EasyUnlockerUITests"
-               ReferencedContainer = "container:EasyUnlocker.xcodeproj">
+               BuildableName = "KeySealUITests.xctest"
+               BlueprintName = "KeySealUITests"
+               ReferencedContainer = "container:KeySeal.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -557,9 +557,9 @@ scheme = f"""<?xml version="1.0" encoding="UTF-8"?>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "{TARGET_ID}"
-            BuildableName = "EasyUnlocker.app"
-            BlueprintName = "EasyUnlocker"
-            ReferencedContainer = "container:EasyUnlocker.xcodeproj">
+            BuildableName = "KeySeal.app"
+            BlueprintName = "KeySeal"
+            ReferencedContainer = "container:KeySeal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -574,9 +574,9 @@ scheme = f"""<?xml version="1.0" encoding="UTF-8"?>
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "{TARGET_ID}"
-            BuildableName = "EasyUnlocker.app"
-            BlueprintName = "EasyUnlocker"
-            ReferencedContainer = "container:EasyUnlocker.xcodeproj">
+            BuildableName = "KeySeal.app"
+            BlueprintName = "KeySeal"
+            ReferencedContainer = "container:KeySeal.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
@@ -589,6 +589,39 @@ scheme = f"""<?xml version="1.0" encoding="UTF-8"?>
    </ArchiveAction>
 </Scheme>
 """
-with open(os.path.join(scheme_dir, "EasyUnlocker.xcscheme"), "w") as fh:
+with open(os.path.join(scheme_dir, "KeySeal.xcscheme"), "w") as fh:
     fh.write(scheme)
+
+# test plan：测试目标 ID 由 uid() 决定，写死会漂移，跟着生成。
+testplan = """{
+  "configurations" : [
+    {
+      "id" : "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+      "name" : "Default",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testRepetitionMode" : "retryOnFailure",
+    "maximumTestRepetitions" : 3,
+    "testTimeoutsEnabled" : true,
+    "defaultTestExecutionTimeAllowance" : 180
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:KeySeal.xcodeproj",
+        "identifier" : "%s",
+        "name" : "KeySealUITests"
+      }
+    }
+  ],
+  "version" : 1
+}
+""" % TEST_TARGET_ID
+with open(os.path.join(ROOT, "KeySeal.xctestplan"), "w") as fh:
+    fh.write(testplan)
+
 print(f"wrote {out} ({len(src_paths)} source files)")

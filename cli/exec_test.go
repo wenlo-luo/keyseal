@@ -10,7 +10,7 @@ import (
 
 func countAnonFiles(t *testing.T) int {
 	t.Helper()
-	matches, err := filepath.Glob(filepath.Join(os.TempDir(), ".easyget-*"))
+	matches, err := filepath.Glob(filepath.Join(os.TempDir(), ".keyget-*"))
 	if err != nil {
 		t.Fatalf("glob: %v", err)
 	}
@@ -24,7 +24,7 @@ func TestRunWithSecretProvidesEnvAndAnonymousFd(t *testing.T) {
 	before := countAnonFiles(t)
 
 	code, err := RunWithSecret(
-		`printf '%s' "$EASYGET_SECRET" > "$PROBE_OUT"; printf '|' >> "$PROBE_OUT"; cat /dev/fd/3 >> "$PROBE_OUT"; printf '|%s' "$EASYGET_ITEM" >> "$PROBE_OUT"`,
+		`printf '%s' "$KEYGET_SECRET" > "$PROBE_OUT"; printf '|' >> "$PROBE_OUT"; cat /dev/fd/3 >> "$PROBE_OUT"; printf '|%s' "$KEYGET_ITEM" >> "$PROBE_OUT"`,
 		[]byte("s3cr3t"), "demo-item", "",
 	)
 	if err != nil {

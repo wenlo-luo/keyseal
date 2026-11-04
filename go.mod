@@ -1,4 +1,4 @@
-module github.com/cyancity/easy-unlocker
+module github.com/keyseal/keyseal
 
 go 1.22
 

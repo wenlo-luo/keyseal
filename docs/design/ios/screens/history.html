@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>批准记录 · easy-unlocker</title>
+<title>批准记录 · keyseal</title>
 <link rel="stylesheet" href="screen.css" />
 <style>
   /* iOS push 转场：详情层从右侧滑入 */
@@ -223,16 +223,16 @@
 
   /* ─── 记录详情 ─── */
   var DETAILS = {
-    'hist-1':  { st: 'ok',   stText: '已放行', dev: 'dev-laptop',   time: '9月15日 09:41', key: 'OPENAI_API_KEY',       via: 'Face ID', fields: '密码',        took: '12 秒',       reason: '给 codex 批量跑 review 注入 env。',   cmd: "easyGet env OPENAI_API_KEY --exec 'npm run review'" },
-    'hist-2':  { st: 'bad',  stText: '已拒绝', dev: 'devin-cli',  time: '9月15日 09:12', key: 'GITHUB_TOKEN',         via: '—',       fields: '—',          took: '5 秒后拒绝',   reason: '用途对不上这条凭据，直接拒了。',      cmd: 'easyGet env GITHUB_TOKEN --for "gh api"' },
-    'hist-3':  { st: 'warn', stText: '已超时', dev: 'wsl-dev',   time: '9月14日 22:03', key: 'SSH-CA-PROD',         via: '—',       fields: '—',          took: '120 秒无响应', reason: '深夜自动任务，手机不在手边。',        cmd: 'easyGet ssh --ca SSH-CA-PROD --host web-01' },
-    'hist-4':  { st: 'ok',   stText: '已放行', dev: 'dev-laptop',   time: '9月14日 18:47', key: 'ANTHROPIC_API_KEY',   via: 'Face ID', fields: '密码',        took: '8 秒',        reason: 'devin 会话要调 Anthropic 接口。',     cmd: "easyGet env ANTHROPIC_API_KEY --exec 'devin run'" },
-    'hist-5':  { st: 'ok',   stText: '已放行', dev: 'vps-01', time: '9月14日 15:20', key: 'NPM_TOKEN',           via: '密码',     fields: '密码',        took: '31 秒',       reason: 'CI 发包前的本地预检。',               cmd: "easyGet env NPM_TOKEN --exec 'npm publish --dry-run'" },
-    'hist-6':  { st: 'warn', stText: '已超时', dev: 'dev-laptop',   time: '9月13日 11:05', key: 'VERCEL_TOKEN',        via: '—',       fields: '—',          took: '120 秒无响应', reason: '推送被系统折叠，没注意到。',          cmd: "easyGet env VERCEL_TOKEN --exec 'vercel deploy'" },
-    'hist-7':  { st: 'ok',   stText: '已放行', dev: 'vps-01', time: '9月12日 16:32', key: 'CLOUDFLARE_API_TOKEN',via: 'Face ID', fields: '密码 + 备注', took: '15 秒',       reason: '改 DNS 前先读 zone 配置。',           cmd: "easyGet env CLOUDFLARE_API_TOKEN --exec 'flarectl zone list'" },
-    'hist-8':  { st: 'bad',  stText: '已拒绝', dev: 'wsl-dev',   time: '9月12日 10:14', key: 'GITHUB_TOKEN',         via: '—',       fields: '—',          took: '6 秒后拒绝',   reason: '理由写得太模糊，拒掉让对面重发。',    cmd: 'easyGet env GITHUB_TOKEN' },
-    'hist-9':  { st: 'ok',   stText: '已放行', dev: 'dev-laptop',   time: '9月11日 20:58', key: 'SSH-CA-PROD',         via: 'Face ID', fields: '备注',        took: '10 秒',       reason: '给新装的 wsl-dev 签登录证书。',      cmd: 'easyGet ssh --ca SSH-CA-PROD --host wsl-dev' },
-    'hist-10': { st: 'ok',   stText: '已放行', dev: 'devin-cli',  time: '9月11日 08:26', key: 'OPENAI_API_KEY',       via: '密码',     fields: '密码',        took: '40 秒',       reason: '例行日报任务取 key。',                cmd: "easyGet env OPENAI_API_KEY --exec 'python digest.py'" }
+    'hist-1':  { st: 'ok',   stText: '已放行', dev: 'dev-laptop',   time: '9月15日 09:41', key: 'OPENAI_API_KEY',       via: 'Face ID', fields: '密码',        took: '12 秒',       reason: '给 codex 批量跑 review 注入 env。',   cmd: "keyGet env OPENAI_API_KEY --exec 'npm run review'" },
+    'hist-2':  { st: 'bad',  stText: '已拒绝', dev: 'devin-cli',  time: '9月15日 09:12', key: 'GITHUB_TOKEN',         via: '—',       fields: '—',          took: '5 秒后拒绝',   reason: '用途对不上这条凭据，直接拒了。',      cmd: 'keyGet env GITHUB_TOKEN --for "gh api"' },
+    'hist-3':  { st: 'warn', stText: '已超时', dev: 'wsl-dev',   time: '9月14日 22:03', key: 'SSH-CA-PROD',         via: '—',       fields: '—',          took: '120 秒无响应', reason: '深夜自动任务，手机不在手边。',        cmd: 'keyGet ssh --ca SSH-CA-PROD --host web-01' },
+    'hist-4':  { st: 'ok',   stText: '已放行', dev: 'dev-laptop',   time: '9月14日 18:47', key: 'ANTHROPIC_API_KEY',   via: 'Face ID', fields: '密码',        took: '8 秒',        reason: 'devin 会话要调 Anthropic 接口。',     cmd: "keyGet env ANTHROPIC_API_KEY --exec 'devin run'" },
+    'hist-5':  { st: 'ok',   stText: '已放行', dev: 'vps-01', time: '9月14日 15:20', key: 'NPM_TOKEN',           via: '密码',     fields: '密码',        took: '31 秒',       reason: 'CI 发包前的本地预检。',               cmd: "keyGet env NPM_TOKEN --exec 'npm publish --dry-run'" },
+    'hist-6':  { st: 'warn', stText: '已超时', dev: 'dev-laptop',   time: '9月13日 11:05', key: 'VERCEL_TOKEN',        via: '—',       fields: '—',          took: '120 秒无响应', reason: '推送被系统折叠，没注意到。',          cmd: "keyGet env VERCEL_TOKEN --exec 'vercel deploy'" },
+    'hist-7':  { st: 'ok',   stText: '已放行', dev: 'vps-01', time: '9月12日 16:32', key: 'CLOUDFLARE_API_TOKEN',via: 'Face ID', fields: '密码 + 备注', took: '15 秒',       reason: '改 DNS 前先读 zone 配置。',           cmd: "keyGet env CLOUDFLARE_API_TOKEN --exec 'flarectl zone list'" },
+    'hist-8':  { st: 'bad',  stText: '已拒绝', dev: 'wsl-dev',   time: '9月12日 10:14', key: 'GITHUB_TOKEN',         via: '—',       fields: '—',          took: '6 秒后拒绝',   reason: '理由写得太模糊，拒掉让对面重发。',    cmd: 'keyGet env GITHUB_TOKEN' },
+    'hist-9':  { st: 'ok',   stText: '已放行', dev: 'dev-laptop',   time: '9月11日 20:58', key: 'SSH-CA-PROD',         via: 'Face ID', fields: '备注',        took: '10 秒',       reason: '给新装的 wsl-dev 签登录证书。',      cmd: 'keyGet ssh --ca SSH-CA-PROD --host wsl-dev' },
+    'hist-10': { st: 'ok',   stText: '已放行', dev: 'devin-cli',  time: '9月11日 08:26', key: 'OPENAI_API_KEY',       via: '密码',     fields: '密码',        took: '40 秒',       reason: '例行日报任务取 key。',                cmd: "keyGet env OPENAI_API_KEY --exec 'python digest.py'" }
   };
   var ST_COLOR = {
     ok:   'var(--success)',

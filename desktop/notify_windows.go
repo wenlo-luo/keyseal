@@ -14,7 +14,7 @@ import (
 func (a *App) initToast() {
 	exe, _ := os.Executable()
 	_ = toast.SetAppData(toast.AppData{
-		AppID:    "easy-unlocker",
+		AppID:    "keyseal",
 		IconPath: exe,
 	})
 	toast.SetActivationCallback(func(args string, data []toast.UserData) {
@@ -31,7 +31,7 @@ func (a *App) notifyNewRequest(item, requester, purpose string) {
 		msg += " · " + purpose
 	}
 	n := toast.Notification{
-		AppID: "easy-unlocker",
+		AppID: "keyseal",
 		Title: "有新的取凭据请求",
 		Body:  msg,
 		// 点击横幅 = 拉回窗口；Short 时限自动消进通知中心，不留残影。

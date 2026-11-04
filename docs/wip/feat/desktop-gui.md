@@ -4,8 +4,8 @@
 
 - Windows/macOS 桌面端（Wails + Go）：配对、发请求、批准请求、浏览/复制 vault。
 - 配对码带角色：`approver` 码配出桌面批准端（不触发换机独占）。
-- vault.eu1 整库密文经 broker 同步：broker 只见 opaque blob，恢复码/密码永不出端。
-- 配对成功后令牌顺手写进 easyGet 配置——GUI 配好 CLI 直接能用。
+- vault.ks1 整库密文经 broker 同步：broker 只见 opaque blob，恢复码/密码永不出端。
+- 配对成功后令牌顺手写进 keyGet 配置——GUI 配好 CLI 直接能用。
 
 ## 当前状态
 
@@ -18,13 +18,13 @@
   - `POST /v1/device/pair-code` 接 `{role?}`，默认 `requester`；`approver` 码不踢人。
   - `POST /v1/pair/claim` 响应加 `role`。
   - 新增 `GET/POST /v1/vault`：租户级 opaque 密文存取（≤2MiB）。
-    Go 版持久化 `data/vaults.json`（`--vault-file`/`EASY_UNLOCKER_VAULT_FILE`），
+    Go 版持久化 `data/vaults.json`（`--vault-file`/`KEYSEAL_VAULT_FILE`），
     worker 版落 DO storage `vault:<tenant>`。
 - `cli/pair.go`：`ClaimResult` + `PairClaimFull`（`PairClaim` 保持旧签名委托）。
 - `desktop/`（独立 go module，`replace ../` 复用 internal/boxpayload 与 cli）：
-  - `config.go`：`%APPDATA%/easy-unlocker/desktop.json`（win）/
-    `~/Library/Application Support/…`（mac）；配对后双写 easyGet 配置。
-  - `vault.go`：vault.eu1 / password.wrap 的 Go 版解密
+  - `config.go`：`%APPDATA%/keyseal/desktop.json`（win）/
+    `~/Library/Application Support/…`（mac）；配对后双写 keyGet 配置。
+  - `vault.go`：vault.ks1 / password.wrap 的 Go 版解密
     （argon2id + AES-GCM，逐字对齐 Android Kotlin 实现）+ 本地密文缓存。
   - `backend.go`：broker 薄客户端（pending/decide/vault get-put/devices）。
   - `app.go`：Wails 绑定面（Pair/Unlock/Pending/Approve/Items/CopyItem/
@@ -51,7 +51,7 @@
 
 - `wails build` 出正式包 + windows/macOS 双端冒烟。
 - 端到端：手机生成 approver 码 → 桌面配对 → 手机推 vault → 桌面解锁 →
-  easyGet 发请求 → 桌面批准。
+  keyGet 发请求 → 桌面批准。
 - iOS 生成 approver 码 + vault 上传（当前缺口，PARITY 已记）。
 
 ## 相关文件
@@ -70,9 +70,9 @@
 - 密封内容 = grant JSON `{device_token, role, name}`（非裸 token：requester 无权
   列设备反查角色）；session 作 AAD，5min TTL、取一次即焚。
 - 桌面：`desktop/pairqr.go`（go-qrcode 出 data URI，轮询 2s）+ 前端 setup 页
-  按钮/QR 图/状态。配对成功照旧双写 easyGet 配置。
+  按钮/QR 图/状态。配对成功照旧双写 keyGet 配置。
 - Android：`ScanPane.kt`（CameraX + ML Kit barcode），设备页「扫码配对桌面」入口；
-  `AppViewModel.pairOffer` 校验 `kind="eu-pair"` 且 QR 的 broker 必须等于当前网关
+  `AppViewModel.pairOffer` 校验 `kind="ks-pair"` 且 QR 的 broker 必须等于当前网关
   （防跨服务器挂令牌）。新依赖：camera-camera2/lifecycle/view 1.4.1、mlkit
   barcode-scanning 17.3.0；manifest 加 CAMERA 权限。
 - QR 只含 `{v,kind,broker,s,k,n}`，不含凭据；拍屏无风险。
@@ -81,7 +81,7 @@
 
 - arm-free（arm.yolooo.cloud）broker 已升 `v2026.09.16-25-ge085b1e-dirty-qrpair`，
   `/v1/pair/offer` 路由上线（无参 400 = 存活）。
-- 回滚：二进制备份在 `~/easy-unlocker/dist/broker.rollback-*`。
+- 回滚：二进制备份在 `~/keyseal/dist/broker.rollback-*`。
 
 ## 验证结果（追加）
 
@@ -115,5 +115,5 @@
   → 撤置顶 + 自动弹出的窗口收回托盘（手动打开的窗口不动）。
 - **竞态修复**：showWindow 的临时置顶（400ms）撤之前检查 autoPinned，避免与
   通知的持续置顶抢跑。
-- 验收：托盘关窗 → CLI 请求 → 横幅 + 窗口置顶弹出 → 批准 → EASYGET_EXEC_OK +
+- 验收：托盘关窗 → CLI 请求 → 横幅 + 窗口置顶弹出 → 批准 → KEYGET_EXEC_OK +
   窗口自动收回 ✅

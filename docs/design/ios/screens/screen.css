@@ -158,7 +158,7 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
- * easy-unlocker iOS primitives
+ * keyseal iOS primitives
  * Built on the token contract above — no raw hex below this line.
  * Screens render inside /frames/iphone-15-pro.html which supplies the
  * status bar, Dynamic Island and home indicator; inner viewport ≈ 366×745.

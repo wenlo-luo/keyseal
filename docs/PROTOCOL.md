@@ -1,4 +1,4 @@
-# easy-unlocker 协议规范 v1
+# keyseal 协议规范 v1
 
 > Broker 的 HTTP 协议与载荷格式。Go broker（`broker/`）与 CF worker（`worker/`）是同一协议的两份实现——本文件是两者的共同契约，改动必须同步。
 >
@@ -67,9 +67,9 @@
 
 #### QR 配对时序（手机扫桌面）
 
-1. 桌面生成一次性 X25519 密钥对 + 随机 session，QR 内容为 `{"v":1,"kind":"eu-pair","broker":"<url>","s":"<session>","k":"<X25519 pub>","n":"<桌面名>"}`
+1. 桌面生成一次性 X25519 密钥对 + 随机 session，QR 内容为 `{"v":1,"kind":"ks-pair","broker":"<url>","s":"<session>","k":"<X25519 pub>","n":"<桌面名>"}`
 2. 手机扫码 → 校验 `kind` 与 broker 一致性 → `POST /v1/pair/offer`
-3. 桌面轮询 `GET /v1/pair/offer/{session}` → `boxpayload.Open` 出 `{device_token, role, name}` → 落本地配置（并同步写 easyGet 配置）
+3. 桌面轮询 `GET /v1/pair/offer/{session}` → `boxpayload.Open` 出 `{device_token, role, name}` → 落本地配置（并同步写 keyGet 配置）
 
 QR 本身不含任何凭据；令牌只经密封信道到桌面私钥持有者。session 是 offer 的 AAD，重放到别的会话解不开。
 
@@ -110,7 +110,7 @@ QR 本身不含任何凭据；令牌只经密封信道到桌面私钥持有者�
 - Broker 按 (request_key, tenant) 索引 pending；同租户带同 key 重发 → **续等原请求**（`request_reattached`），不重推 FCM，手机上不出现第二条
 - 客户端连接断开 → pending 标 `detached` 进 **15s 重连宽限期**（`request_detached`）；宽限期内未续才真取消（`request_cancelled`），手机待批准随之消失
 - 老客户端（无 request_key）行为不变：断开即取消。新客户端打老 Broker：重发会开新单重推——兼容但不优雅
-- CLI 行为：`Client.Request` 自动生成 key 并在传输错误时 1.5s 间隔重发直到 TTL；`--no-proxy`/`EASYGET_NO_PROXY` 可绕开环境代理直连
+- CLI 行为：`Client.Request` 自动生成 key 并在传输错误时 1.5s 间隔重发直到 TTL；`--no-proxy`/`KEYGET_NO_PROXY` 可绕开环境代理直连
 
 ### `Response`（长轮询返回）
 
@@ -130,7 +130,7 @@ Request 全字段 + `request_id`、`received_at`、`expires_at`、`state`（wait
 
 ### 决策签名
 
-`sig = HMAC-SHA256(decisionKey, "easy-unlocker/v1/decision/" + request_id + "/" + decision)`。approve/deny 各一枚，单次使用，claim 后该请求进 `deciding` 状态不再接受第二次。FCM 推送载荷携带两枚 sig——通知里的直达批准路径走的就是它。
+`sig = HMAC-SHA256(decisionKey, "keyseal/v1/decision/" + request_id + "/" + decision)`。approve/deny 各一枚，单次使用，claim 后该请求进 `deciding` 状态不再接受第二次。FCM 推送载荷携带两枚 sig——通知里的直达批准路径走的就是它。
 
 ## 5. 密封载荷（应用层加密）
 

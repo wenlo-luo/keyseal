@@ -1,4 +1,4 @@
-# easy-unlocker — MVP 计划
+# keyseal — MVP 计划
 
 > **历史文档（M1 时期）**：这一版 MVP 的批准端是自托管推送服务的通知按钮，该方案已于 2026-09-14 弃用并全部移除。
 > 现在批准端是手机 App（指纹 + 手选条目 + 本地密封），当前实现见 [P1-APP.md](P1-APP.md)。本文保留作当时的设计记录。
@@ -35,7 +35,7 @@
 | 组件 | 放哪 | 说明 |
 |---|---|---|
 | **Broker** | 作者的 Mac | `rbw` 已经就绪，不需要迁移保险库 |
-| **easyGet CLI** | Agent 所在机器（如 `your-server`） | 单文件，一行命令安装 |
+| **keyGet CLI** | Agent 所在机器（如 `your-server`） | 单文件，一行命令安装 |
 | **批准端** | 手机浏览器 / ntfy App | 不做原生 App |
 | **推送** | 自托管 ntfy | action button 直接 POST 回 Broker，不需要写 bot |
 
@@ -76,7 +76,7 @@ M3 的 `sign` 请求可额外携带 `public_key`（OpenSSH 公钥）与 `ssh_use
 408 { "status": "expired" }                  # 超时一律当拒绝
 ```
 
-**`payload` 对 CLI 之外的任何进程不可见**，尤其不打印到 stdout——`easyGet` 的输出只有状态和一句人话。
+**`payload` 对 CLI 之外的任何进程不可见**，尤其不打印到 stdout——`keyGet` 的输出只有状态和一句人话。
 
 ### 批准回调
 
@@ -126,18 +126,18 @@ curl -s -X POST localhost:8787/v1/request -H "Authorization: Bearer $TOKEN" \
 - Broker 用 `rbw get` 取条目
 - 值经加密通道回传 CLI
 - CLI 写入 `--write-to` 指定的路径，写完从内存清除
-- `easyGet` 的 stdout 只有 `已完成`，**不含值**
+- `keyGet` 的 stdout 只有 `已完成`，**不含值**
 
 **验收**：
 ```bash
-ssh your-server 'easyGet env OPENAI_API_KEY --write-to /tmp/t.env --for "冒烟"'
+ssh your-server 'keyGet env OPENAI_API_KEY --write-to /tmp/t.env --for "冒烟"'
 # 手机批准后：
 ssh your-server 'grep -c sk- /tmp/t.env'      # → 1（值确实写进去了）
 ssh your-server 'cat /tmp/t.env | wc -c'      # 内容正确
 ```
-**关键验证**：`easyGet` 的输出、Broker 日志、CLI 日志里**都搜不到密钥明文**。
+**关键验证**：`keyGet` 的输出、Broker 日志、CLI 日志里**都搜不到密钥明文**。
 ```bash
-grep -r "$(rbw get OPENAI_API_KEY)" ~/.easy-unlocker/logs/ /tmp/easyGet.log ; echo "应为空"
+grep -r "$(rbw get OPENAI_API_KEY)" ~/.keyseal/logs/ /tmp/keyGet.log ; echo "应为空"
 ```
 
 ---
@@ -145,22 +145,22 @@ grep -r "$(rbw get OPENAI_API_KEY)" ~/.easy-unlocker/logs/ /tmp/easyGet.log ; ec
 ### M3 — SSH 短时证书（约 1 天）
 
 - **CA 私钥只存手机保险库**（条目备注栏放 OpenSSH ed25519 私钥）；Broker 不持有 CA
-- `easyGet ssh <ca-item> --for "..."` → 手机指纹批准 → 手机本地签一张短时证书，密封回传
+- `keyGet ssh <ca-item> --for "..."` → 手机指纹批准 → 手机本地签一张短时证书，密封回传
 - 目标机 `sshd_config` 加 `TrustedUserCAKeys`；CLI 证书 + 临时身份落 `~/.ssh/`，`ssh -i` 直接登录
 - `--ssh-user`（默认本机用户名）与 `--cert-ttl`（默认 300s，上限 86400）可选
 
 **验收**：
 ```bash
-ssh your-server 'easyGet ssh my-ssh-ca --for "冒烟"'
+ssh your-server 'keyGet ssh my-ssh-ca --for "冒烟"'
 # 手机批准 → 证书落到 ~/.ssh/ 并完成一次登录
 # 证书过期后新连接被拒（已建立的会话不受影响——证书只在登录握手时校验）：
-ssh -i ~/.ssh/easy-unlocker-my-ssh-ca your-server 'echo x'   # 过期后 → Permission denied
+ssh -i ~/.ssh/keyseal-my-ssh-ca your-server 'echo x'   # 过期后 → Permission denied
 ```
 
 **私钥不传输**：CA 私钥只在手机，Broker 只见公钥与密文；用户原有 SSH 私钥不分发。
 `akr`（Akamai）是这条路线的成熟先例，可参考其交互设计。
 
-**Plan B**：若 CA 配置在目标机上遇到阻碍，退化为"临时 ssh-agent 注入"——`easyGet` 拿到私钥后灌进一个只存活本次命令的 ssh-agent，用完销毁。**代价：私钥会到达目标机内存，违反 PLAN.md 3.1 的原则，属于明确的技术债，须在 P1 还清。**
+**Plan B**：若 CA 配置在目标机上遇到阻碍，退化为"临时 ssh-agent 注入"——`keyGet` 拿到私钥后灌进一个只存活本次命令的 ssh-agent，用完销毁。**代价：私钥会到达目标机内存，违反 PLAN.md 3.1 的原则，属于明确的技术债，须在 P1 还清。**
 
 ---
 
@@ -169,7 +169,7 @@ ssh -i ~/.ssh/easy-unlocker-my-ssh-ca your-server 'echo x'   # 过期后 → Per
 - 配对 token 的作用域收敛到"仅请求"
 - 所有失败路径 fail closed；超时=拒绝
 - 审计日志：时间 / 谁 / 要什么 / 决定 / 结果（**不含任何值**）
-- 一键安装脚本（`easyGet` CLI 装到目标机 + 写 `AGENTS.md` 指令 + `easyGet ping` 自检）
+- 一键安装脚本（`keyGet` CLI 装到目标机 + 写 `AGENTS.md` 指令 + `keyGet ping` 自检）
 - 写 `docs/wip/` 交接文档
 
 **验收**：断网 / 关手机 / Broker 挂掉三种情况下，Agent 都拿到明确的失败而不是挂死；审计日志能回答"上周谁批准了什么"。

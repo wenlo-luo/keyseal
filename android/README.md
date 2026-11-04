@@ -1,4 +1,4 @@
-# easy-unlocker Android App（P1）
+# keyseal Android App（P1）
 
 需求真源：[docs/P1-APP.md](../docs/P1-APP.md)。  
 **Agent 构建/安装**：[docs/AGENTS-SETUP.md](../docs/AGENTS-SETUP.md)。
@@ -9,14 +9,14 @@
 
 ## 第一次使用
 
-1. 创建库：恢复码会写成手机 Documents 下的 `easy-unlocker-recovery.txt`，平时用指纹解锁，不用手打恢复码。
+1. 创建库：恢复码会写成手机 Documents 下的 `keyseal-recovery.txt`，平时用指纹解锁，不用手打恢复码。
    已有旧库的：用恢复码解锁一次，之后就会改成指纹。
-2. 添加一条 Agent 凭据（名称可以和 `easyGet` 请求名不同）。
+2. 添加一条 Agent 凭据（名称可以和 `keyGet` 请求名不同）。
    要批量搬的：Bitwarden → 工具 → 导出 → 选 **`.json`（未加密）**，然后在 App「设置 → 导入 Bitwarden 导出」里选这个文件，搜索/勾选要的条目再点导入。只认登录条目，取的名称、用户名和密码；`notes`/TOTP/自定义字段不读。导入的明文只走内存，不会落盘。
 3. 配对：Broker `https://broker.example.com`，pairing token 只在自己终端取：
 
 ```bash
-ssh your-server "grep '^EASY_UNLOCKER_PAIRING_TOKEN=' ~/easy-unlocker/.env"
+ssh your-server "grep '^KEYSEAL_PAIRING_TOKEN=' ~/keyseal/.env"
 ```
 
 4. 不要把 token 贴回聊天。配对成功后 App 只保留设备令牌。
@@ -34,13 +34,13 @@ ssh your-server "grep '^EASY_UNLOCKER_PAIRING_TOKEN=' ~/easy-unlocker/.env"
 电脑上：
 
 ```bash
-easyGet env OPENAI_API_KEY --write-to /tmp/t.env --for "冒烟"
+keyGet env OPENAI_API_KEY --write-to /tmp/t.env --for "冒烟"
 ```
 
 手机收到「请打开 App」（通知上没有批准按钮，密钥只在手机里）。打开 App → 指纹 → 手选条目 → 批准。
 
-`easyGet env` 每次现场生成临时公钥；Broker 只转发密文。
+`keyGet env` 每次现场生成临时公钥；Broker 只转发密文。
 
 ## 备份
 
-「设置 → 导出密文备份」得到密文文件，可保存到文件管理器或分享出去。换机/迁移：新装首屏或「设置 → 导入密文备份」选这个 `.eu1` 文件、输它的恢复码即可——整库覆盖，不是合并；导入后解锁密码要重设，指纹会自动重包。
+「设置 → 导出密文备份」得到密文文件，可保存到文件管理器或分享出去。换机/迁移：新装首屏或「设置 → 导入密文备份」选这个 `.ks1` 文件、输它的恢复码即可——整库覆盖，不是合并；导入后解锁密码要重设，指纹会自动重包。

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>OPENAI_API_KEY · easy-unlocker</title>
+<title>OPENAI_API_KEY · keyseal</title>
 <link rel="stylesheet" href="screen.css" />
 </head>
 <body>
@@ -57,15 +57,15 @@
     <!-- ─── SSH CA 公钥 ─── -->
     <div class="kv-label" data-od-id="label-ca">
       <span>SSH CA 公钥</span>
-      <button class="copybtn" data-copy="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ7fQm9vKp3xWnL2sRtY8uHbV4cD6eG1jM0aP5oF9wXy easy-unlocker-ca">
+      <button class="copybtn" data-copy="ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ7fQm9vKp3xWnL2sRtY8uHbV4cD6eG1jM0aP5oF9wXy keyseal-ca">
         <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></svg>
         复制
       </button>
     </div>
     <div class="kv-card accent" data-od-id="ca-card">
-      <div class="secret mono" style="font-size: var(--text-xs);">ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ7fQm9vKp3xWnL2sRtY8uHbV4cD6eG1jM0aP5oF9wXy easy-unlocker-ca</div>
+      <div class="secret mono" style="font-size: var(--text-xs);">ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ7fQm9vKp3xWnL2sRtY8uHbV4cD6eG1jM0aP5oF9wXy keyseal-ca</div>
       <div class="mono" style="font-size: var(--text-xs); color: var(--muted); margin-top: 8px;">SHA256:9fK2vR7mQdXwL4nTcF8hJ3sPzY6uE1aG5xN0oViHq</div>
-      <div style="font-size: var(--text-xs); color: var(--muted); line-height: 1.45; margin-top: 8px;">把上面那行放进目标机的 TrustedUserCAKeys 文件，这条目就能给 easyGet ssh 签证书。</div>
+      <div style="font-size: var(--text-xs); color: var(--muted); line-height: 1.45; margin-top: 8px;">把上面那行放进目标机的 TrustedUserCAKeys 文件，这条目就能给 keyGet ssh 签证书。</div>
     </div>
 
     <p class="foot-note" data-od-id="secure-note">切到后台会自动上锁 · 已屏蔽截屏</p>

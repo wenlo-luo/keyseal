@@ -14,14 +14,14 @@ import (
 	"golang.org/x/crypto/argon2"
 )
 
-// vault.eu1 与 password.wrap 的 Go 版解密，逐字对齐 Android 侧
+// vault.ks1 与 password.wrap 的 Go 版解密，逐字对齐 Android 侧
 // crypto/VaultCrypto.kt 与 crypto/PasswordWrap.kt：
-//   vault key = argon2id(recovery16B, salt, ops, memKiB, p=1) → AES-256-GCM(AAD "easy-unlocker-vault")
-//   wrap key  = argon2id(password,    salt, ops, memKiB, p=1) → AES-256-GCM(AAD "easy-unlocker-password-wrap")
+//   vault key = argon2id(recovery16B, salt, ops, memKiB, p=1) → AES-256-GCM(AAD "keyseal-vault")
+//   wrap key  = argon2id(password,    salt, ops, memKiB, p=1) → AES-256-GCM(AAD "keyseal-password-wrap")
 
 var (
-	vaultAAD = []byte("easy-unlocker-vault")
-	wrapAAD  = []byte("easy-unlocker-password-wrap")
+	vaultAAD = []byte("keyseal-vault")
+	wrapAAD  = []byte("keyseal-password-wrap")
 )
 
 type vaultFileJSON struct {
@@ -129,7 +129,7 @@ func b64d(s string) ([]byte, error) {
 	return base64.StdEncoding.DecodeString(strings.TrimSpace(s))
 }
 
-// deriveVaultKeyFromRecovery：vault.eu1 的 salt + 恢复码 → vault key。
+// deriveVaultKeyFromRecovery：vault.ks1 的 salt + 恢复码 → vault key。
 func deriveVaultKeyFromRecovery(blob string, recoveryCode string) ([]byte, error) {
 	var vf vaultFileJSON
 	if err := json.Unmarshal([]byte(blob), &vf); err != nil {

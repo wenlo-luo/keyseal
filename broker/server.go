@@ -16,9 +16,9 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/internal/boxpayload"
-	"github.com/cyancity/easy-unlocker/internal/protocol"
-	"github.com/cyancity/easy-unlocker/internal/securepayload"
+	"github.com/keyseal/keyseal/internal/boxpayload"
+	"github.com/keyseal/keyseal/internal/protocol"
+	"github.com/keyseal/keyseal/internal/securepayload"
 )
 
 const (
@@ -83,7 +83,7 @@ type pairCode struct {
 	role    string
 }
 
-// vaultBlob 是租户级 vault 同步载体：blob 是 vault.eu1 密文原文（opaque JSON），
+// vaultBlob 是租户级 vault 同步载体：blob 是 vault.ks1 密文原文（opaque JSON），
 // wrap 是可选的 password.wrap（密码包裹的 vault key），broker 只存不解读。
 type vaultBlob struct {
 	Blob      string    `json:"blob"`
@@ -125,7 +125,7 @@ func (d deviceRecord) tenant() string {
 }
 
 // role 缺省按 approver：老 devices.json 分不清手机和 CLI，当 requester 会把在用的手机
-// 废掉。已配对的 CLI 要降级成 requester，得重新跑一次 easyGet pair。
+// 废掉。已配对的 CLI 要降级成 requester，得重新跑一次 keyGet pair。
 func (d deviceRecord) role() string {
 	if d.Role == "" {
 		return deviceRoleApprover
@@ -1415,7 +1415,7 @@ func (s *Server) newRequestID() (string, error) {
 
 func (s *Server) decisionSignature(id, decision string) string {
 	mac := hmac.New(sha256.New, s.decisionKey)
-	_, _ = mac.Write([]byte("easy-unlocker/v1/decision/"))
+	_, _ = mac.Write([]byte("keyseal/v1/decision/"))
 	_, _ = mac.Write([]byte(id))
 	_, _ = mac.Write([]byte("/"))
 	_, _ = mac.Write([]byte(decision))

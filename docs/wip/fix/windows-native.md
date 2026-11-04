@@ -1,8 +1,8 @@
-# WIP: easyGet Windows 原生支持（分支 `fix/windows-native`）
+# WIP: keyGet Windows 原生支持（分支 `fix/windows-native`）
 
 ## 目标
 
-修复 easyGet 在 Windows 原生环境（无 WSL）下的安装与运行失败。
+修复 keyGet 在 Windows 原生环境（无 WSL）下的安装与运行失败。
 
 ## 当前状态
 
@@ -18,15 +18,15 @@ linux/amd64、darwin/arm64、windows 三平台 `go build` 通过。
 - `cli/exec_unix.go` / `exec_windows.go`：`--exec` 拆平台。
   - unix：`sh -c` + `cmd.ExtraFiles` 匿名 fd（`/dev/fd/3`），不变。
   - Windows：密钥写 %TEMP% 下私有临时文件（ACL 收紧到当前用户），
-    `EASYGET_SECRET_FD` 传文件路径，子进程退出后删除。
+    `KEYGET_SECRET_FD` 传文件路径，子进程退出后删除。
   - 命令不直接 `cmd /C <command>`——cmd 对 /C 整串做引号剥离，
     命令带引号即解析错乱；改写进临时 `.cmd` 批处理执行，语义等价。
-- `cli/cmd/easyget/main.go`：help 文案区分 unix `/dev/fd/3` 与
+- `cli/cmd/keyget/main.go`：help 文案区分 unix `/dev/fd/3` 与
   Windows 临时文件两种形态；`USER`/`USERNAME` 兜底取用户名。
 - `cli/pair.go`、`cli/client.go`：Windows 路径/权限相关小改。
 - `scripts/install.ps1`：Windows 原生安装脚本。下载 release 到
-  `%LOCALAPPDATA%\Programs\easy-unlocker`，写用户 PATH，
-  可选 `-Broker -Code` 直接 pair，最后 `easyGet ping` 自检。
+  `%LOCALAPPDATA%\Programs\keyseal`，写用户 PATH，
+  可选 `-Broker -Code` 直接 pair，最后 `keyGet ping` 自检。
 - 测试适配：unix-only 断言（0600 mode 位、HOME 隔离）在 Windows 跳过；
   新增 `cli/exec_windows_test.go` 验证环境变量 + fd 文件双载体。
 
@@ -52,5 +52,5 @@ linux/amd64、darwin/arm64、windows 三平台 `go build` 通过。
 
 - `cli/exec.go`、`cli/exec_unix.go`、`cli/exec_windows.go`、`cli/exec_windows_test.go`
 - `cli/configperm_unix.go`、`cli/configperm_windows.go`
-- `cli/client.go`、`cli/pair.go`、`cli/cmd/easyget/main.go`
+- `cli/client.go`、`cli/pair.go`、`cli/cmd/keyget/main.go`
 - `scripts/install.ps1`

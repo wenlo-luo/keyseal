@@ -10,7 +10,7 @@ import (
 )
 
 // RunWithSecret Windows 版：没有 sh、没有 /dev/fd、cmd.ExtraFiles 也不支持。
-// $EASYGET_SECRET_FD 给一个真实临时文件路径（%TEMP% 本用户私有，用完即删）。
+// $KEYGET_SECRET_FD 给一个真实临时文件路径（%TEMP% 本用户私有，用完即删）。
 //
 // 命令不直接走 cmd /C：<command>：cmd 对 /C 后的整串做引号剥离，
 // 只要命令里带引号就会解析错乱。改写进临时 .cmd 批处理文件再执行，
@@ -62,7 +62,7 @@ func RunWithSecret(command string, secret []byte, item string, envName string) (
 // commandScript 把用户命令写进临时 .cmd 文件，返回路径。
 // 只装命令文本，不含密钥——密钥经环境变量与 fd 文件交付。
 func commandScript(command string) (string, error) {
-	f, err := os.CreateTemp("", "easyget-*.cmd")
+	f, err := os.CreateTemp("", "keyget-*.cmd")
 	if err != nil {
 		return "", errors.New("无法创建临时命令脚本")
 	}
@@ -81,7 +81,7 @@ func commandScript(command string) (string, error) {
 
 // namedSecretFile 写一个有名字的临时文件；Windows 下 fd 传不了，只能传路径。
 func namedSecretFile(secret []byte) (string, error) {
-	file, err := os.CreateTemp(os.TempDir(), ".easyget-*")
+	file, err := os.CreateTemp(os.TempDir(), ".keyget-*")
 	if err != nil {
 		return "", errors.New("无法创建临时载体")
 	}

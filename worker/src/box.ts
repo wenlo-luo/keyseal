@@ -1,12 +1,12 @@
 // boxpayload 的 WebCrypto 版 Seal：与 internal/boxpayload/boxpayload.go 逐字节对齐。
 //   shared = X25519(eph_priv, recipient_pub)
-//   key    = HKDF-SHA256(ikm=shared, salt="easy-unlocker/v2/box/", info=requestID) → 32B
+//   key    = HKDF-SHA256(ikm=shared, salt="keyseal/v2/box/", info=requestID) → 32B
 //   ct     = AES-256-GCM(nonce 12B, AAD=requestID)(plaintext)
 //   wire   = "v2." + b64url(eph_pub(32) | nonce(12) | ct)
 // 扫码配对用它把设备令牌密封给桌面公钥；broker 只见公钥，私钥不出桌面。
 
 const V = "v2";
-const HKDF_SALT = "easy-unlocker/v2/box/";
+const HKDF_SALT = "keyseal/v2/box/";
 
 function b64urlDecode(s: string): Uint8Array {
   const pad = s.length % 4 === 0 ? "" : "=".repeat(4 - (s.length % 4));

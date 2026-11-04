@@ -61,7 +61,7 @@ func fcmPayload(deviceToken, requestID, gateway string) map[string]any {
 		"message": map[string]any{
 			"token": deviceToken,
 			"notification": map[string]string{
-				"title": "easy-unlocker",
+				"title": "keyseal",
 				"body":  "有一条待批准的请求",
 			},
 			"data": data,

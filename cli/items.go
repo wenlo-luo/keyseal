@@ -32,7 +32,7 @@ type ItemList struct {
 	Items     []ItemEntry `json:"items"`
 }
 
-// ItemsCachePath 把名单缓存放在配置文件旁边，跟随 --config / EASY_UNLOCKER_CONFIG。
+// ItemsCachePath 把名单缓存放在配置文件旁边，跟随 --config / KEYSEAL_CONFIG。
 func ItemsCachePath(configPath string) string {
 	resolved := DefaultConfigPath(configPath)
 	if resolved == "" {
@@ -76,7 +76,7 @@ func LoadItems(path string) (ItemList, error) {
 	}
 	list, err := ParseItemList(material)
 	if err != nil {
-		return ItemList{}, errors.New("本机名单缓存无法解析，重跑 easyGet list --refresh")
+		return ItemList{}, errors.New("本机名单缓存无法解析，重跑 keyGet list --refresh")
 	}
 	return list, nil
 }

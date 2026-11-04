@@ -8,11 +8,11 @@
     <uses-permission android:name="android.permission.VIBRATE" />
     <application
         android:allowBackup="false"
-        android:label="easy-unlocker"
+        android:label="keyseal"
         android:icon="@mipmap/ic_launcher"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.EasyUnlocker"
+        android:theme="@style/Theme.KeySeal"
         android:usesCleartextTraffic="false">
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
@@ -36,7 +36,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="easyunlocker" android:host="pending" />
+                <data android:scheme="keyseal" android:host="pending" />
             </intent-filter>
         </activity>
     </application>

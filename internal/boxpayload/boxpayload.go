@@ -147,7 +147,7 @@ func Open(recipient KeyPair, requestID, envelope string) ([]byte, error) {
 }
 
 func deriveBoxKey(shared []byte, requestID string) ([]byte, error) {
-	reader := hkdf.New(sha256.New, shared, []byte("easy-unlocker/v2/box/"), []byte(requestID))
+	reader := hkdf.New(sha256.New, shared, []byte("keyseal/v2/box/"), []byte(requestID))
 	key := make([]byte, 32)
 	if _, err := io.ReadFull(reader, key); err != nil {
 		return nil, errors.New("cannot derive box key")

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 打 release：easyGet 各平台二进制 + broker(linux/arm64) + Android APK，挂到 GitHub Release。
+# 打 release：keyGet 各平台二进制 + broker(linux/arm64) + Android APK，挂到 GitHub Release。
 #
 # 为什么要有这个：其他 agent 和别的机器不该现场编译，直接下 release 产物。
 # 为什么不做 CI：APK 必须带 android/app/google-services.json（gitignore，CI 里没有），
@@ -8,7 +8,7 @@
 # 用法：
 #   bash scripts/release.sh                 # 打当天 tag（vYYYY.MM.DD，同日再加 -2、-3）
 #   bash scripts/release.sh --tag v2026.09.20
-#   bash scripts/release.sh --no-apk        # 更新 easyGet / broker，复用上一版 APK
+#   bash scripts/release.sh --no-apk        # 更新 keyGet / broker，复用上一版 APK
 #
 # 前置：在 main、工作区干净、与 origin 一致；gh 已登录；打 APK 需要 Android SDK、
 #      android/app/google-services.json、android/local.properties。
@@ -59,14 +59,14 @@ OUT="dist/release/$TAG"
 [ ! -e "$OUT" ] || fail "输出目录 $OUT 已存在，请检查已有产物或换一个 tag"
 mkdir -p "$OUT"
 
-# ---------- easyGet：多平台 ----------
-echo "== 编译 easyGet =="
+# ---------- keyGet：多平台 ----------
+echo "== 编译 keyGet =="
 for target in darwin/arm64 darwin/amd64 linux/arm64 linux/amd64 windows/amd64 windows/arm64; do
   os="${target%%/*}"
   arch="${target##*/}"
-  name="easyGet-$os-$arch"
+  name="keyGet-$os-$arch"
   [ "$os" = "windows" ] && name="$name.exe"
-  CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -trimpath -ldflags "-s -w -X main.version=$TAG" -o "$OUT/$name" ./cli/cmd/easyget
+  CGO_ENABLED=0 GOOS="$os" GOARCH="$arch" go build -trimpath -ldflags "-s -w -X main.version=$TAG" -o "$OUT/$name" ./cli/cmd/keyget
   echo "  $name"
 done
 
@@ -80,8 +80,8 @@ echo "  broker-linux-arm64"
 # macOS 桌面端需要本机 Xcode/wails 环境，暂不进 release（要用时本地构建）。
 echo "== 编译桌面客户端 =="
 for arch in amd64 arm64; do
-  (cd desktop && CGO_ENABLED=0 GOOS=windows GOARCH="$arch" go build -trimpath -tags desktop,production -ldflags "-s -w -H windowsgui -X main.version=$TAG" -o "../$OUT/easy-unlocker-desktop-windows-$arch.exe" .)
-  echo "  easy-unlocker-desktop-windows-$arch.exe ($(du -h "$OUT/easy-unlocker-desktop-windows-$arch.exe" | cut -f1))"
+  (cd desktop && CGO_ENABLED=0 GOOS=windows GOARCH="$arch" go build -trimpath -tags desktop,production -ldflags "-s -w -H windowsgui -X main.version=$TAG" -o "../$OUT/keyseal-desktop-windows-$arch.exe" .)
+  echo "  keyseal-desktop-windows-$arch.exe ($(du -h "$OUT/keyseal-desktop-windows-$arch.exe" | cut -f1))"
 done
 
 # ---------- Android APK ----------
@@ -90,12 +90,12 @@ if $WITH_APK; then
   (cd android && ./gradlew --console=plain :app:assembleDebug | tail -5)
   apk="$(ls -t android/app/build/outputs/apk/debug/*.apk 2>/dev/null | head -1)"
   [ -n "$apk" ] || fail "没找到 APK 产物"
-  cp "$apk" "$OUT/easy-unlocker-debug.apk"
-  echo "  easy-unlocker-debug.apk ($(du -h "$OUT/easy-unlocker-debug.apk" | cut -f1))"
+  cp "$apk" "$OUT/keyseal-debug.apk"
+  echo "  keyseal-debug.apk ($(du -h "$OUT/keyseal-debug.apk" | cut -f1))"
 else
   APK_SOURCE_TAG="$(gh release view --json tagName -q .tagName)"
   echo "== 复用 $APK_SOURCE_TAG 的 APK（--no-apk，保持 latest/download 安装链接可用）=="
-  gh release download "$APK_SOURCE_TAG" --pattern easy-unlocker-debug.apk --dir "$OUT"
+  gh release download "$APK_SOURCE_TAG" --pattern keyseal-debug.apk --dir "$OUT"
 fi
 
 # ---------- 校验和 ----------
@@ -134,10 +134,10 @@ gh release create "$TAG" "$OUT"/* --target "$(git rev-parse HEAD)" --title "$TAG
 echo
 echo "✅ $TAG 已发布：$(gh release view "$TAG" --json url -q .url)"
 echo
-echo "其他机器装 easyGet（不用编译）："
+echo "其他机器装 keyGet（不用编译）："
 echo "  os=\$(uname -s | tr 'A-Z' 'a-z'); arch=\$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/')"
-echo "  curl -L -o /tmp/easyGet \"https://github.com/cyancity/easy-unlocker/releases/latest/download/easyGet-\${os}-\${arch}\""
-echo "  install -m 755 /tmp/easyGet ~/.local/bin/easyGet && easyGet --help"
+echo "  curl -L -o /tmp/keyGet \"https://github.com/keyseal/keyseal/releases/latest/download/keyGet-\${os}-\${arch}\""
+echo "  install -m 755 /tmp/keyGet ~/.local/bin/keyGet && keyGet --help"
 echo "手机装 APK："
-echo "  curl -L -o /tmp/easy-unlocker.apk https://github.com/cyancity/easy-unlocker/releases/latest/download/easy-unlocker-debug.apk"
-echo "  adb install -r /tmp/easy-unlocker.apk"
+echo "  curl -L -o /tmp/keyseal.apk https://github.com/keyseal/keyseal/releases/latest/download/keyseal-debug.apk"
+echo "  adb install -r /tmp/keyseal.apk"

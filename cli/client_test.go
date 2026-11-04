@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/broker"
-	"github.com/cyancity/easy-unlocker/internal/protocol"
+	"github.com/keyseal/keyseal/broker"
+	"github.com/keyseal/keyseal/internal/protocol"
 )
 
 type integrationNotifier struct {
@@ -102,7 +102,7 @@ func TestClientWritePathEndToEndWithoutPlaintextResponse(t *testing.T) {
 			t.Fatalf("target mode=%o", mode)
 		}
 	}
-	if hidden, _ := filepath.Glob(filepath.Join(filepath.Dir(target), ".easy-unlocker-write-*")); len(hidden) != 0 {
+	if hidden, _ := filepath.Glob(filepath.Join(filepath.Dir(target), ".keyseal-write-*")); len(hidden) != 0 {
 		t.Fatalf("temporary files remain: %v", hidden)
 	}
 }
@@ -142,11 +142,11 @@ func TestCheckBrokerURL(t *testing.T) {
 			t.Fatalf("CheckBrokerURL(%q) err=%v, wantErr=%v", c.raw, err, c.wantErr)
 		}
 	}
-	t.Setenv("EASY_UNLOCKER_ALLOW_HTTP", "1")
+	t.Setenv("KEYSEAL_ALLOW_HTTP", "1")
 	if err := CheckBrokerURL("http://10.0.0.5:8787"); err != nil {
 		t.Fatalf("allow-http override err=%v", err)
 	}
-	t.Setenv("EASY_UNLOCKER_ALLOW_HTTP", "")
+	t.Setenv("KEYSEAL_ALLOW_HTTP", "")
 	_, err := (Client{BrokerURL: "http://10.0.0.5:1", PairingToken: "t"}).Request(context.Background(), protocol.Request{
 		Item: "x", Mode: protocol.ModeWrite, Purpose: "p", TTL: 1, Target: "/tmp/x",
 	})

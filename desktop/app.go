@@ -10,9 +10,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/cli"
-	"github.com/cyancity/easy-unlocker/internal/boxpayload"
-	"github.com/cyancity/easy-unlocker/internal/protocol"
+	"github.com/keyseal/keyseal/cli"
+	"github.com/keyseal/keyseal/internal/boxpayload"
+	"github.com/keyseal/keyseal/internal/protocol"
 
 	wailsRuntime "github.com/wailsapp/wails/v2/pkg/runtime"
 )
@@ -103,7 +103,7 @@ func (a *App) Status() statusView {
 // ---------- 配对 ----------
 
 // Pair 用手机上的一次性码换设备令牌。role=approver 的码 → 这台机器也是批准端。
-// 成功后顺手写 easyGet 配置——同一张令牌两边都能用，用户无感。
+// 成功后顺手写 keyGet 配置——同一张令牌两边都能用，用户无感。
 func (a *App) Pair(brokerURL, code string) (statusView, error) {
 	host, _ := os.Hostname()
 	result, err := cli.PairClaimFull(brokerURL, code, host+" (desktop)")
@@ -334,7 +334,7 @@ func (a *App) Approve(requestID, itemName, field string) error {
 		}
 	}
 	if strings.TrimSpace(target.SealPublicKey) == "" {
-		return errors.New("这次请求没有传输公钥，请用新版 easyGet 重发")
+		return errors.New("这次请求没有传输公钥，请用新版 keyGet 重发")
 	}
 	pub, err := boxpayload.ParsePublic(target.SealPublicKey)
 	if err != nil {

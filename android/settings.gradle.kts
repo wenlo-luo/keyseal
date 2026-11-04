@@ -12,5 +12,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "easy-unlocker"
+rootProject.name = "keyseal"
 include(":app")

@@ -2,15 +2,15 @@
 
 set -eu
 
-install_dir=${EASYGET_INSTALL_DIR:-"$HOME/.local/bin"}
-config_dir=${EASYGET_CONFIG_DIR:-"$HOME/.config/easy-unlocker"}
-config_path=${EASYGET_CONFIG:-"$config_dir/config"}
-agents_file=${EASYGET_AGENTS_FILE:-"$PWD/AGENTS.md"}
-broker_url=${EASY_UNLOCKER_BROKER_URL:-}
-pairing_token=${EASY_UNLOCKER_PAIRING_TOKEN:-}
-source_binary=${EASYGET_BINARY:-}
-download_url=${EASYGET_URL:-}
-skill_dir=${EASYGET_SKILL_DIR:-}
+install_dir=${KEYGET_INSTALL_DIR:-"$HOME/.local/bin"}
+config_dir=${KEYGET_CONFIG_DIR:-"$HOME/.config/keyseal"}
+config_path=${KEYGET_CONFIG:-"$config_dir/config"}
+agents_file=${KEYGET_AGENTS_FILE:-"$PWD/AGENTS.md"}
+broker_url=${KEYSEAL_BROKER_URL:-}
+pairing_token=${KEYSEAL_PAIRING_TOKEN:-}
+source_binary=${KEYGET_BINARY:-}
+download_url=${KEYGET_URL:-}
+skill_dir=${KEYGET_SKILL_DIR:-}
 build_dir=
 config_tmp=
 
@@ -25,29 +25,29 @@ cleanup() {
 trap cleanup EXIT HUP INT TERM
 
 if [ -z "$broker_url" ] || [ -z "$pairing_token" ]; then
-	echo "EASY_UNLOCKER_BROKER_URL 和 EASY_UNLOCKER_PAIRING_TOKEN 是必需的" >&2
+	echo "KEYSEAL_BROKER_URL 和 KEYSEAL_PAIRING_TOKEN 是必需的" >&2
 	exit 1
 fi
 
 if [ -z "$source_binary" ]; then
 	if [ -n "$download_url" ]; then
 		build_dir=$(mktemp -d)
-		source_binary="$build_dir/easyGet"
+		source_binary="$build_dir/keyGet"
 		curl --fail --silent --show-error --location "$download_url" --output "$source_binary"
 	else
 		repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 		if ! command -v go >/dev/null 2>&1 || [ ! -f "$repo_dir/go.mod" ]; then
-			echo "请设置 EASYGET_BINARY（已有 easyGet 二进制）或 EASYGET_URL（发布地址）" >&2
+			echo "请设置 KEYGET_BINARY（已有 keyGet 二进制）或 KEYGET_URL（发布地址）" >&2
 			exit 1
 		fi
 		build_dir=$(mktemp -d)
-		source_binary="$build_dir/easyGet"
-		go build -trimpath -o "$source_binary" "$repo_dir/cli/cmd/easyget"
+		source_binary="$build_dir/keyGet"
+		go build -trimpath -o "$source_binary" "$repo_dir/cli/cmd/keyget"
 	fi
 fi
 
 if [ ! -f "$source_binary" ]; then
-	echo "找不到 easyGet 二进制" >&2
+	echo "找不到 keyGet 二进制" >&2
 	exit 1
 fi
 
@@ -56,8 +56,8 @@ mkdir -p "$install_dir" "$config_dir"
 config_parent=$(dirname -- "$config_path")
 mkdir -p "$config_parent"
 chmod 700 "$config_dir"
-cp "$source_binary" "$install_dir/easyGet"
-chmod 755 "$install_dir/easyGet"
+cp "$source_binary" "$install_dir/keyGet"
+chmod 755 "$install_dir/keyGet"
 
 config_tmp=$(mktemp "$config_dir/config.XXXXXX")
 chmod 600 "$config_tmp"
@@ -68,39 +68,39 @@ chmod 600 "$config_tmp"
 mv -f "$config_tmp" "$config_path"
 config_tmp=
 
-marker_start='<!-- easy-unlocker:begin -->'
-marker_end='<!-- easy-unlocker:end -->'
+marker_start='<!-- keyseal:begin -->'
+marker_end='<!-- keyseal:end -->'
 if [ ! -f "$agents_file" ] || ! grep -Fq "$marker_start" "$agents_file"; then
 	{
 		printf '\n%s\n' "$marker_start"
-		printf '%s\n' '# easy-unlocker：需要凭据时只调用 easyGet，不要读取或打印凭据值。'
-		printf '%s\n' '- API Key：easyGet env <item> --write-to <path> --for "说明用途"'
-		printf '%s\n' '- SSH：easyGet ssh <name> --for "说明用途"'
-		printf '%s\n' '- 不知道条目名：easyGet list（读本机缓存，免费、不联网）。要一份新的用 easyGet list --refresh（手机会要一次指纹），别每次取用前都刷。'
+		printf '%s\n' '# keyseal：需要凭据时只调用 keyGet，不要读取或打印凭据值。'
+		printf '%s\n' '- API Key：keyGet env <item> --write-to <path> --for "说明用途"'
+		printf '%s\n' '- SSH：keyGet ssh <name> --for "说明用途"'
+		printf '%s\n' '- 不知道条目名：keyGet list（读本机缓存，免费、不联网）。要一份新的用 keyGet list --refresh（手机会要一次指纹），别每次取用前都刷。'
 		printf '%s\n' '- 缓存只是上一次的快照：名字不在名单里不等于条目不存在，用户给的名字直接请求。'
-		printf '%s\n' '- easyGet 的输出只有状态；不要把目标文件内容放入对话、日志或命令输出。'
-		printf '%s\n' '- 完整用法与排坑：https://github.com/cyancity/easy-unlocker/blob/main/docs/AGENTS-SETUP.md'
+		printf '%s\n' '- keyGet 的输出只有状态；不要把目标文件内容放入对话、日志或命令输出。'
+		printf '%s\n' '- 完整用法与排坑：https://github.com/keyseal/keyseal/blob/main/docs/AGENTS-SETUP.md'
 		printf '%s\n' "$marker_end"
 	} >>"$agents_file"
 fi
 
 if [ -n "$skill_dir" ]; then
 	repo_dir=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
-	mkdir -p "$skill_dir/easy-unlocker"
-	if [ -f "$repo_dir/skills/easy-unlocker/SKILL.md" ]; then
-		cp "$repo_dir/skills/easy-unlocker/SKILL.md" "$skill_dir/easy-unlocker/SKILL.md"
-		echo "agent skill 已装到 $skill_dir/easy-unlocker/"
+	mkdir -p "$skill_dir/keyseal"
+	if [ -f "$repo_dir/skills/keyseal/SKILL.md" ]; then
+		cp "$repo_dir/skills/keyseal/SKILL.md" "$skill_dir/keyseal/SKILL.md"
+		echo "agent skill 已装到 $skill_dir/keyseal/"
 	elif curl --fail --silent --show-error --location \
-		"https://raw.githubusercontent.com/cyancity/easy-unlocker/main/skills/easy-unlocker/SKILL.md" \
-		--output "$skill_dir/easy-unlocker/SKILL.md" 2>/dev/null; then
-		echo "agent skill 已装到 $skill_dir/easy-unlocker/"
+		"https://raw.githubusercontent.com/keyseal/keyseal/main/skills/keyseal/SKILL.md" \
+		--output "$skill_dir/keyseal/SKILL.md" 2>/dev/null; then
+		echo "agent skill 已装到 $skill_dir/keyseal/"
 	else
-		echo "skill 安装失败（可选步骤，不影响 easyGet 使用）" >&2
+		echo "skill 安装失败（可选步骤，不影响 keyGet 使用）" >&2
 	fi
 fi
 
-PATH="$install_dir:$PATH" EASY_UNLOCKER_CONFIG="$config_path" "$install_dir/easyGet" ping
-echo "easyGet 已安装到 $install_dir/easyGet"
+PATH="$install_dir:$PATH" KEYSEAL_CONFIG="$config_path" "$install_dir/keyGet" ping
+echo "keyGet 已安装到 $install_dir/keyGet"
 if [ -z "$skill_dir" ]; then
-	echo "可选：给 agent 装 easyGet skill → EASYGET_SKILL_DIR=<skills 目录> 重跑本脚本（如 ~/.claude/skills、~/.config/devin/skills）"
+	echo "可选：给 agent 装 keyGet skill → KEYGET_SKILL_DIR=<skills 目录> 重跑本脚本（如 ~/.claude/skills、~/.config/devin/skills）"
 fi

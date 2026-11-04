@@ -52,7 +52,7 @@ func TestRunWithSecretWindowsFileReadableByPowerShell(t *testing.T) {
 	dir := t.TempDir()
 	t.Setenv("TMP", dir)
 	t.Setenv("TEMP", dir)
-	code, err := RunWithSecret(`powershell.exe -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; if ([IO.File]::ReadAllText($env:EASYGET_SECRET_FD) -ne 'fixture-secret') { exit 9 }; exit 7"`, []byte("fixture-secret"), "fixture", "")
+	code, err := RunWithSecret(`powershell.exe -NoProfile -NonInteractive -Command "$ErrorActionPreference='Stop'; if ([IO.File]::ReadAllText($env:KEYGET_SECRET_FD) -ne 'fixture-secret') { exit 9 }; exit 7"`, []byte("fixture-secret"), "fixture", "")
 	if err != nil || code != 7 {
 		t.Fatalf("PowerShell could not read carrier: exit=%d err=%v, want 7", code, err)
 	}
@@ -66,7 +66,7 @@ func TestRunWithSecretWindowsProvidesEnvAndFile(t *testing.T) {
 	out := filepath.Join(t.TempDir(), "probe.txt")
 	t.Setenv("PROBE_OUT", out)
 	code, err := RunWithSecret(
-		`echo %EASYGET_SECRET%>"%PROBE_OUT%" & type "%EASYGET_SECRET_FD%">>"%PROBE_OUT%" & echo %EASYGET_ITEM%>>"%PROBE_OUT%"`,
+		`echo %KEYGET_SECRET%>"%PROBE_OUT%" & type "%KEYGET_SECRET_FD%">>"%PROBE_OUT%" & echo %KEYGET_ITEM%>>"%PROBE_OUT%"`,
 		[]byte("s3cr3t"), "demo-item", "",
 	)
 	if err != nil {

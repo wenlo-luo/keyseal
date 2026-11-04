@@ -1,4 +1,4 @@
-# easy-unlocker iOS App
+# keyseal iOS App
 
 功能对齐 Android 版，UI 用 Apple 原生风格。需求与双端差距见 [docs/PARITY.md](../docs/PARITY.md)。
 **Agent 构建/安装**：[docs/AGENTS-SETUP.md](../docs/AGENTS-SETUP.md)。
@@ -10,11 +10,11 @@
 ```bash
 cd ios
 python3 generate-project.py   # 扫描目录生成 project.pbxproj；加了源码文件后重跑一次
-open EasyUnlocker.xcodeproj
+open KeySeal.xcodeproj
 ```
 
 - `DEVELOPMENT_TEAM` 默认留空：真机构建在 Signing & Capabilities 里选你自己的 Team，模拟器不用管。
-- bundle id 是 `io.github.cyancity.easyunlocker`，要换自己的标识就全局搜替换，并同步 `EasyUnlocker.entitlements` 里的 keychain group。
+- bundle id 是 `io.github.keyseal.keyseal`，要换自己的标识就全局搜替换，并同步 `KeySeal.entitlements` 里的 keychain group。
 - 真机第一次装要在系统设置里信任开发者证书。
 
 ## 使用

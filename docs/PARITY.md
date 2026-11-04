@@ -48,7 +48,7 @@
 | 推送：FCM / APNs | ✅ | ❌ | iOS APNs 未接入：个人团队无 Push capability，轮询兜底；待付费账号验真 |
 | 密码批准兜底（无指纹时） | ✅ | ✅ | |
 | 批准记录（筛选 + 详情页） | ✅ | ✅ | 详情页字段 via/field/took_ms/command_line 两端一致；iOS via 细分 faceid/touchid/opticid |
-| 导出密文备份 / 导入（含 Bitwarden） | ✅ | 🚧 | Android 导出（保存到文件/分享）+ .eu1 整库导入 + Bitwarden 导入全通；iOS 有导出和 Bitwarden 导入，缺 .eu1 导入 |
+| 导出密文备份 / 导入（含 Bitwarden） | ✅ | 🚧 | Android 导出（保存到文件/分享）+ .ks1 整库导入 + Bitwarden 导入全通；iOS 有导出和 Bitwarden 导入，缺 .ks1 导入 |
 | FLAG_SECURE 截屏保护 | ✅ | ➖ | iOS 原生截屏行为不同 |
 
 ## CLI
@@ -59,14 +59,14 @@
 | `--ssh-user`/`--cert-ttl`/`--identity` | ✅ |
 | `pair --code`（绑租户） | ✅ | 设备名默认 `user@host`（可用 `--name` 覆盖），手机设备页显示的就是它 |
 | 显式传租户 | ➖ 设计上不需要（token 反查） |
-| `version` 子命令 + ping 报新版本 | ✅ | 版本经 release.sh `-X main.version=$TAG` 注入；`env/ssh/list` 成功后一天一次静默检查（`~/.config/easy-unlocker/.version-check`） |
+| `version` 子命令 + ping 报新版本 | ✅ | 版本经 release.sh `-X main.version=$TAG` 注入；`env/ssh/list` 成功后一天一次静默检查（`~/.config/keyseal/.version-check`） |
 | Windows 原生配置 / 文件 / `--exec` | ✅ | NTFS 私有 ACL，保护失败则停止写入；cmd 语法，临时载体在子进程退出后删除；支持 PowerShell/.NET 文件读取。`version` / `--version` 不依赖配置 |
 
 ## Desktop（Wails，Windows/macOS）
 
 | 能力 | 状态 | 备注 |
 |---|---|---|
-| 配对码配对（requester / approver 皆可） | ✅ | 填 broker + 手机上的一次性码；成功后令牌同时写进 easyGet 配置，CLI 立即可用 |
+| 配对码配对（requester / approver 皆可） | ✅ | 填 broker + 手机上的一次性码；成功后令牌同时写进 keyGet 配置，CLI 立即可用 |
 | QR 配对（生成码 + 轮询 offer） | ✅ | 一次性 X25519 密钥对；密封 grant 解出令牌，轮询 2s，5min TTL；手动输码仍兜底 |
 | 发起 write 请求（GUI 当 requester） | ✅ | 批准结果进剪贴板，不落盘 |
 | 待批准轮询 + 批准/拒绝（approver） | ✅ | 3s 轮询；密封走 v2 boxpayload，与手机同路径；纯备注条目默认放备注（与 Android `VaultField.defaultFor` 对齐） |
@@ -80,9 +80,9 @@
 
 ## 已知问题 TODO（双端通用）
 
-1. ~~可重连长轮询~~ ✅ **已实现**（`feat/reconnectable-request`）：`request_key` 幂等键 + detached 15s 宽限期 + CLI 自动重连；`--no-proxy`/`EASYGET_NO_PROXY` 直连开关
+1. ~~可重连长轮询~~ ✅ **已实现**（`feat/reconnectable-request`）：`request_key` 幂等键 + detached 15s 宽限期 + CLI 自动重连；`--no-proxy`/`KEYGET_NO_PROXY` 直连开关
 2. ~~前台多网关不可见~~ ✅ **Android 已实现**（`fix/gateway-device-ux`）：watch 循环每 10s 顺带轮询其它已配网关的 pending 数，网关行显示「N 条待批准」、待批准页给提示卡，点「切过去」会切网关并把请求直接展开。**没有加 `FirebaseMessagingService`**——前台发现由轮询覆盖，后台仍靠系统通知栏 + 点击切网关；iOS 未做，见下方缺口
-3. **一台机器在多个网关上的残留记录**：CLI 只能存一个网关（`~/.config/easy-unlocker/config` 单 broker），换网关后旧网关仍留着这台机器的设备记录；requester 无权列/撤设备，所以 CLI 自己清不掉。当前靠 App 设备页跨网关撤销（Android 已支持）或 180 天自然过期
+3. **一台机器在多个网关上的残留记录**：CLI 只能存一个网关（`~/.config/keyseal/config` 单 broker），换网关后旧网关仍留着这台机器的设备记录；requester 无权列/撤设备，所以 CLI 自己清不掉。当前靠 App 设备页跨网关撤销（Android 已支持）或 180 天自然过期
 
 ## 当前 iOS 对齐缺口
 

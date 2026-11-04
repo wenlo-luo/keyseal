@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────────────────
- * easy-unlocker desktop — tokens 与 android/.../ui/Theme.kt 同源（oklch 直译），
+ * keyseal desktop — tokens 与 android/.../ui/Theme.kt 同源（oklch 直译），
  * 桌面差异只有两件事：
  *   1. 分层对 Mica 透明：html 全透明，导航层叠 70% 底色，内容层叠 94%，
  *      卡片再叠一层 surface。Win11 22621+ 由 DWM 画 Mica；更老的系统

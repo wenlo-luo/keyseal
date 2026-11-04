@@ -1,6 +1,6 @@
 // fakephone 是 spike 用的「假手机」：本地 wrangler dev 时替代 App 完成密封 + 批准/拒绝。
 //
-// 它用仓库里同一份 internal/boxpayload 生成信封，所以 easyGet CLI 能真的用它的临时私钥解开 ——
+// 它用仓库里同一份 internal/boxpayload 生成信封，所以 keyGet CLI 能真的用它的临时私钥解开 ——
 // 这条链路（CLI → Worker → 假手机 → CLI）就是 Phase A 的验收，不需要 CF 账号。
 //
 //	go run ./worker/tools/fakephone -pair -pairing <pairing-token>          # 换一个设备令牌
@@ -20,7 +20,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cyancity/easy-unlocker/internal/boxpayload"
+	"github.com/keyseal/keyseal/internal/boxpayload"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -145,7 +145,7 @@ func signCert(caPath string, pending *pendingView) ([]byte, error) {
 		Nonce:           make([]byte, 32),
 		Key:             publicKey,
 		CertType:        ssh.UserCert,
-		KeyId:           "easy-unlocker/" + pending.RequestID,
+		KeyId:           "keyseal/" + pending.RequestID,
 		ValidPrincipals: []string{pending.SSHUser},
 		// 与 App SshCert 同步：回拨 120s 吸收目标机时钟差（回拨不足 → sshd
 		// 报 "Certificate invalid: not yet valid"）。

@@ -24,4 +24,4 @@
 
 ## 相关文件
 
-- `android/app/src/main/java/io/github/cyancity/easyunlocker/ui/Components.kt`
+- `android/app/src/main/java/io/github/keyseal/keyseal/ui/Components.kt`

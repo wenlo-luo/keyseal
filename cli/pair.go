@@ -17,11 +17,11 @@ func DefaultConfigPath(configPath string) string {
 	if configPath != "" {
 		return configPath
 	}
-	if configPath = os.Getenv("EASY_UNLOCKER_CONFIG"); configPath != "" {
+	if configPath = os.Getenv("KEYSEAL_CONFIG"); configPath != "" {
 		return configPath
 	}
 	if home, err := os.UserHomeDir(); err == nil {
-		return filepath.Join(home, ".config", "easy-unlocker", "config")
+		return filepath.Join(home, ".config", "keyseal", "config")
 	}
 	return ""
 }
@@ -40,7 +40,7 @@ func WriteConfig(configPath, brokerURL, token string) error {
 	}
 	content := fmt.Sprintf("broker_url=%s\npairing_token=%s\n",
 		strings.TrimRight(strings.TrimSpace(brokerURL), "/"), strings.TrimSpace(token))
-	tmp, err := os.CreateTemp(dir, ".easyget-config-*")
+	tmp, err := os.CreateTemp(dir, ".keyget-config-*")
 	if err != nil {
 		return errors.New("无法写临时配置")
 	}

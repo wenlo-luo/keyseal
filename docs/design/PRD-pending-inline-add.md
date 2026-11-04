@@ -120,7 +120,7 @@
 
 ## 5. 测试用例
 
-> iOS 走 `EasyUnlockerUITests` 既有 harness（mock broker 8787 + pair-claim requester token + `approveByPassword`）。Android 无 UI 测试设施，靠单测可覆盖的纯逻辑 + 构建 + 人工冒烟核对矩阵。
+> iOS 走 `KeySealUITests` 既有 harness（mock broker 8787 + pair-claim requester token + `approveByPassword`）。Android 无 UI 测试设施，靠单测可覆盖的纯逻辑 + 构建 + 人工冒烟核对矩阵。
 
 | # | 用例 | 步骤 | 断言 |
 |---|---|---|---|
@@ -137,5 +137,5 @@
 ## 6. 验收口径
 
 - 双端均实现 3.1 入口矩阵与 3.3 保存后行为；异常矩阵逐条核对。
-- `go test ./...`（回归）、Android `:app:assembleDebug` + `:app:testDebugUnitTest`、iOS `xcodebuild build` + `EasyUnlockerUITests`（至少跑 T1/T3 新用例与既有 A2 批准回归）。
+- `go test ./...`（回归）、Android `:app:assembleDebug` + `:app:testDebugUnitTest`、iOS `xcodebuild build` + `KeySealUITests`（至少跑 T1/T3 新用例与既有 A2 批准回归）。
 - `docs/PARITY.md` 与 `docs/wip/feat/pending-inline-add.md` 同步。

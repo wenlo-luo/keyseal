@@ -18,7 +18,7 @@ func (a *App) notifyNewRequest(item, requester, purpose string) {
 	if purpose != "" {
 		msg += " · " + purpose
 	}
-	if err := beeep.Notify("easy-unlocker 待批准", msg, ""); err != nil {
+	if err := beeep.Notify("keyseal 待批准", msg, ""); err != nil {
 		log.Println("notify:", err)
 	}
 	if a.windowHidden.Load() {

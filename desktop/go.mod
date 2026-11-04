@@ -1,10 +1,10 @@
-module github.com/cyancity/easy-unlocker/desktop
+module github.com/keyseal/keyseal/desktop
 
 go 1.25.0
 
 require (
 	git.sr.ht/~jackmordaunt/go-toast/v2 v2.0.3
-	github.com/cyancity/easy-unlocker v0.0.0
+	github.com/keyseal/keyseal v0.0.0
 	github.com/gen2brain/beeep v0.11.2
 	github.com/getlantern/systray v1.2.2
 	github.com/skip2/go-qrcode v0.0.0-20200617195104-da1b6568686e
@@ -56,4 +56,4 @@ require (
 	golang.org/x/text v0.39.0 // indirect
 )
 
-replace github.com/cyancity/easy-unlocker => ../
+replace github.com/keyseal/keyseal => ../
