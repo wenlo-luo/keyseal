@@ -1,0 +1,96 @@
+# 双端需求树（Android / iOS / Broker / CLI）
+
+> 功能增删改时必须同步本表——这是双端对齐的唯一事实源。iOS 已合并 main（`6c81e18`）。
+>
+> 图例：✅ 已实现 / 🚧 半成品（stub 或部分）/ ❌ 未实现 / ➖ 不适用
+
+## 协议面（Broker）
+
+| 能力 | Go broker | CF worker | 备注 |
+|---|---|---|---|
+| env 请求 → 批准 → 密封交付（boxpayload） | ✅ | ✅ | |
+| list 模式（#items 手选） | ✅ | ✅ | |
+| sign 模式（`public_key`/`ssh_user`/`cert_ttl`） | ✅ | ✅ | 手机端签 OpenSSH 证书 |
+| 设备角色（approver/requester） | ✅ | ✅ | |
+| 配对码（pair-code → claim） | ✅ | ✅ | 绑租户+角色；claim 响应回 `role` |
+| vault 密文同步 `GET/POST /v1/vault` | ✅ | ✅ | 租户内 opaque blob，≤2MiB；Go 版落 `data/vaults.json`，worker 落 DO storage |
+| QR 配对 `POST+GET /v1/pair/offer` | ✅ | ✅ | 密封 grant（X25519+HKDF+AES-GCM，session 作 AAD），5min TTL 取一次即焚；worker 侧走 WebCrypto |
+| 设备列表/撤销/续期 | ✅ | ✅ | 租户内；时间字段两端都是 RFC3339（worker 早先透传 epoch 毫秒，已对齐） |
+| 设备改名 `POST /v1/device/rename` | ✅ | ✅ | 租户内，approver |
+| `GET /v1/version`（release tag 上报） | ✅ | ✅ | worker 报 wrangler vars 的 `CLI_VERSION`，发版后需同步 |
+| **多租户（vault_id）** | ✅ | ✅ | 同租户 approver 独占；老记录归 default |
+| FCM 推送 | ✅ | ✅ | 按租户过滤 |
+| 审计带 tenant | ✅ | ✅ | |
+
+## App 功能面
+
+| 能力 | Android | iOS | 备注 |
+|---|---|---|---|
+| 建库/解锁（指纹+密码+恢复码） | ✅ | ✅ | iOS 生物识别按硬件自适应 |
+| 条目 CRUD/搜索 | ✅ | ✅ | |
+| 批准闭环（env/list/sign 三模式） | ✅ | ✅ | 请求卡均含还原命令块（commandLine） |
+| 批准页就地新建条目 | ✅ | ✅ | 选择面板首行「新建条目…」+ 空库直开；名称预填请求 item；保存按 requestId 自动选中，仍需手动批准；弹层开着持库锁防切后台打断 |
+| sign 批准页（登录用户/有效期/公钥指纹/选 CA） | ✅ | ✅ | |
+| 编辑页一键生成 CA 私钥填备注 | ✅ | ✅ | |
+| 详情页识别私钥→展示 CA 公钥 | ✅ | ✅ | |
+| 多网关（配对/切换/改名/移除） | ✅ | ✅ | 网关改名为本地标签 |
+| 设备列表跟随当前网关 | ✅ | ❌ | Android 设备按网关存（`devicesByPairing`），切网关即时反映，设置页不再留旧网关的条数 |
+| 设备页跨网关视图（按网关分组 + 任一台撤销） | ✅ | ❌ | Android 一台一组列全部已配网关的设备 |
+| 前台多网关待批准（轮询所有已配网关 + 角标） | ✅ | ❌ | Android 非当前网关 10s 一轮，网关行与待批准页给「切过去」入口 |
+| 网关配对携带 vault_id | ✅ | ✅ | |
+| 库初始化生成 vault_id + 导出/导入沿用 | ✅ | ✅ | 老库解锁时补写并落盘 |
+| 设备管理：列表（只读） | ✅ | ✅ | |
+| 配对码角色选择（requester / 桌面批准端） | ✅ | ❌ | Android 设备页两个按钮；`approver` 码不触发换机独占 |
+| 扫码配对桌面（CameraX + ML Kit） | ✅ | ❌ | 设备页「扫码配对桌面」→ 校验 kind/broker → `POST /v1/pair/offer` |
+| vault 密文上传同步 | ✅ | ❌ | 开库/保存/导入后自动推 `POST /v1/vault` |
+| 设备管理：配对码/撤销/续期 | ✅ | ✅ | |
+| 设备管理：改名 | ✅ | ✅ | /v1/device/rename |
+| 推送：FCM / APNs | ✅ | ❌ | iOS APNs 未接入：个人团队无 Push capability，轮询兜底；待付费账号验真 |
+| 密码批准兜底（无指纹时） | ✅ | ✅ | |
+| 批准记录（筛选 + 详情页） | ✅ | ✅ | 详情页字段 via/field/took_ms/command_line 两端一致；iOS via 细分 faceid/touchid/opticid |
+| 导出密文备份 / 导入（含 Bitwarden） | ✅ | 🚧 | Android 导出（保存到文件/分享）+ .eu1 整库导入 + Bitwarden 导入全通；iOS 有导出和 Bitwarden 导入，缺 .eu1 导入 |
+| FLAG_SECURE 截屏保护 | ✅ | ➖ | iOS 原生截屏行为不同 |
+
+## CLI
+
+| 能力 | 状态 |
+|---|---|
+| env / list / sign 请求 | ✅ |
+| `--ssh-user`/`--cert-ttl`/`--identity` | ✅ |
+| `pair --code`（绑租户） | ✅ | 设备名默认 `user@host`（可用 `--name` 覆盖），手机设备页显示的就是它 |
+| 显式传租户 | ➖ 设计上不需要（token 反查） |
+| `version` 子命令 + ping 报新版本 | ✅ | 版本经 release.sh `-X main.version=$TAG` 注入；`env/ssh/list` 成功后一天一次静默检查（`~/.config/easy-unlocker/.version-check`） |
+| Windows 原生配置 / 文件 / `--exec` | ✅ | NTFS 私有 ACL，保护失败则停止写入；cmd 语法，临时载体在子进程退出后删除；支持 PowerShell/.NET 文件读取。`version` / `--version` 不依赖配置 |
+
+## Desktop（Wails，Windows/macOS）
+
+| 能力 | 状态 | 备注 |
+|---|---|---|
+| 配对码配对（requester / approver 皆可） | ✅ | 填 broker + 手机上的一次性码；成功后令牌同时写进 easyGet 配置，CLI 立即可用 |
+| QR 配对（生成码 + 轮询 offer） | ✅ | 一次性 X25519 密钥对；密封 grant 解出令牌，轮询 2s，5min TTL；手动输码仍兜底 |
+| 发起 write 请求（GUI 当 requester） | ✅ | 批准结果进剪贴板，不落盘 |
+| 待批准轮询 + 批准/拒绝（approver） | ✅ | 3s 轮询；密封走 v2 boxpayload，与手机同路径；纯备注条目默认放备注（与 Android `VaultField.defaultFor` 对齐） |
+| vault 密文同步下载 + 本地解锁 | ✅ | 密码 wrap 先试，恢复码兜底；明文只活内存 |
+| 条目浏览 + 复制 | ✅ | 只列名字/形状；值只在复制时过内存 |
+| 设备列表/撤销/改名（approver） | ✅ | |
+| 解除本机配对（登出） | ✅ | 撤销自己 + 清本地配置/vault 缓存 |
+| 单机离线模式 | ✅ | 不配 broker 就只本地——库密文可手动放 `vault-cache.json` |
+| Windows 安装/开始菜单/App Paths/自启动 | ✅ | `scripts/install-desktop.ps1`（可 `-Uninstall`）；单实例锁（二次启动唤起既有窗口）；PerMonitorV2 DPI manifest（`desktop/rsrc_windows_*.syso`） |
+| sign 模式批准 | ❌ | 桌面暂不签发 SSH 证书（需要 CA，仍归手机） |
+
+## 已知问题 TODO（双端通用）
+
+1. ~~可重连长轮询~~ ✅ **已实现**（`feat/reconnectable-request`）：`request_key` 幂等键 + detached 15s 宽限期 + CLI 自动重连；`--no-proxy`/`EASYGET_NO_PROXY` 直连开关
+2. ~~前台多网关不可见~~ ✅ **Android 已实现**（`fix/gateway-device-ux`）：watch 循环每 10s 顺带轮询其它已配网关的 pending 数，网关行显示「N 条待批准」、待批准页给提示卡，点「切过去」会切网关并把请求直接展开。**没有加 `FirebaseMessagingService`**——前台发现由轮询覆盖，后台仍靠系统通知栏 + 点击切网关；iOS 未做，见下方缺口
+3. **一台机器在多个网关上的残留记录**：CLI 只能存一个网关（`~/.config/easy-unlocker/config` 单 broker），换网关后旧网关仍留着这台机器的设备记录；requester 无权列/撤设备，所以 CLI 自己清不掉。当前靠 App 设备页跨网关撤销（Android 已支持）或 180 天自然过期
+
+## 当前 iOS 对齐缺口
+
+1. **APNs 推送未接入**：个人免费团队不支持 Push capability，开发包摘 `aps-environment`；代码路径（pushToken 上报 + 1s/3s 轮询兜底）在但通道未验真，待付费开发者账号。
+2. 设备列表不跟随当前网关（`switchPairing` 不清 `devices`）、无跨网关设备视图、只轮询当前网关的待批准——三项 Android 已做，iOS 未做。
+3. 编辑/删除条目、sign 证书 UI 流程、恢复码抄写的 UITest 用例未覆盖（crypto 层已对拍验证）。
+
+## 已知交互差异（低优先级，不强制对齐）
+
+- 拒绝请求后：iOS 出「已拒绝」结果页；安卓 toast + 回条目页。
+- 待批准刷新：iOS 下拉刷新；安卓靠 tab 点按刷新 + 离线横幅重试。

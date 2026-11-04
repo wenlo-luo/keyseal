@@ -1,0 +1,60 @@
+# 密钥与本地产物 —— 本项目的存在理由就是不让密钥落盘
+.env
+.env.*
+*.pem
+*.key
+*.crt
+!*.pub
+
+# 运行时数据
+/data/
+logs/
+*.db
+*.sqlite
+
+# Android
+android/.gradle/
+android/local.properties
+android/app/build/
+android/.idea/
+android/app/google-services.json
+
+# 依赖与构建产物
+node_modules/
+__pycache__/
+*.pyc
+dist/
+# Wails 桌面端的前端产物是手写源文件（go:embed 内嵌），不是构建输出——必须入库
+!desktop/frontend/dist/
+!desktop/frontend/dist/**
+build/
+target/
+.venv/
+venv/
+
+# Cloudflare Workers（spike）
+worker/.wrangler/
+worker/.dev.vars
+worker/.prod.vars
+
+# 编辑器与系统
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# 任务 worktree（AGENTS.md 约定任务都在 .worktree/<slug>，不入库）
+.worktree/
+
+# Xcode
+xcuserdata/
+
+# desktop build artifacts
+desktop/desktop.exe
+desktop/build/
+desktop/easy-unlocker
+.dist/
+.phone-backup/
+desktop/desktop
+desktop.exe~
+check-events.ps1
